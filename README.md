@@ -33,3 +33,4 @@
 ## 免責聲明
 本網站為非官方粉絲資訊整理工具，與 ReoNa、Sony Music、SACRA MUSIC 或粉絲俱樂部無隸屬關係。
 活動時間、售票狀態、延期或取消，請以主辦單位及官方公告為準。
+Cloudflare GitHub integration enabled.
