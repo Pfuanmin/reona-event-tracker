@@ -172,15 +172,7 @@ def main():
             )
 
             all_results.extend(source_results)
-
-        browser.close()
-
-    unique = {
-        item["url"]: item
-        for item in all_results
-    }
-
-    # 測試讀取第一篇公告的完整內文
+# 測試讀取第一篇公告的完整內文
     if unique:
         test_url = list(unique.values())[0]["url"]
 
@@ -200,7 +192,12 @@ def main():
         print(article_text[:3000])
 
         test_page.close()
+        browser.close()
 
+    unique = {
+        item["url"]: item
+        for item in all_results
+    }
     output = {
         "checkedAt": checked_at,
         "announcements": list(unique.values()),
