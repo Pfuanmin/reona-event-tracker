@@ -5,8 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urldefrag
 
-import requests
-from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
 SOURCES = [
     {
@@ -27,164 +26,168 @@ SOURCES = [
     },
 ]
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 ReoNaEventTracker/3.0"
-}
+SONY_ARTICLE_PATTERN = re.compile(
+    r"^/artist/ReoNa/(?:info|live)/\d+/?$"
+)
 
 DATE_PATTERN = re.compile(
     r"20\d{2}[./年-]\d{1,2}[./月-]\d{1,2}日?"
 )
 
-KEYWORDS = [
-    "ReoNa", "ライブ", "公演", "イベント",
-    "チケット", "リリース", "発売",
-    "グッズ", "配信", "出演", "開催",
-    "受付", "振替", "中止", "延期",
-]
-
-# Sony Music 公告文章網址必須包含數字文章編號
-SONY_ARTICLE_PATTERN = re.compile(
-    r"^/artist/ReoNa/(?:info|live)/\d+/?$"
-)
-
-
-def fetch_page(url):
-    response = requests.get(
-        url,
-        headers=HEADERS,
-        timeout=30
-    )
-    response.raise_for_status()
-    response.encoding = response.apparent_encoding
-
-    return BeautifulSoup(
-        response.text,
-        "html.parser"
-    )
-
-
-def is_article_url(url, source):
-    parsed = urlparse(url)
-
-    if parsed.netloc != source["domain"]:
-        return False
-
-    path = parsed.path
-
-    if source["name"] == "Sony Music":
-        return bool(
-            SONY_ARTICLE_PATTERN.fullmatch(path)
-        )
-
-    # 官方網站只排除首頁及已知分類入口，
-    # 不把分類頁面當成公告文章。
-    if path in ["/", "/news/", "/live/"]:
-        return False
-
-    return len(path.strip("/")) > 3
-
-
-def scan_source(source):
-    results = []
-    errors = []
-
-    for page_url in source["pages"]:
-        try:
-            soup = fetch_page(page_url)
-
-            for link in soup.find_all("a", href=True):
-                title = " ".join(
-                    link.get_text(" ", strip=True).split()
-                )
-
-                if not title:
-                    image = link.find("img")
-                    if image:
-                        title = image.get("alt", "").strip()
-
-                if len(title) < 4:
-                    continue
-
-                url = urljoin(page_url, link["href"])
-                url, _ = urldefrag(url)
-
-                if not is_article_url(url, source):
-                    continue
-
-                context = title
-                parent = link
-
-                for _ in range(3):
-                    if parent.parent:
-                        parent = parent.parent
-                        context += " " + parent.get_text(
-                            " ", strip=True
-                        )
-
-                context = " ".join(context.split())
-
-                has_keyword = any(
-                    word.lower() in context.lower()
-                    for word in KEYWORDS
-                )
-
-                has_date = bool(
-                    DATE_PATTERN.search(context)
-                )
-
-                # Sony Music 的數字文章網址已通過文章格式檢查；
-                # 官方網站則需要有日期或公告關鍵字。
-                if source["name"] != "Sony Music":
-                    if not (has_keyword or has_date):
-                        continue
-
-                date_match = DATE_PATTERN.search(context)
-
-                results.append({
-                    "title": title,
-                    "url": url,
-                    "source": source["name"],
-                    "publicationDate": (
-                        date_match.group(0)
-                        if date_match else None
-                    ),
-                })
-
-        except Exception as error:
-            errors.append(
-                f"{page_url}: {error}"
-            )
-
-    return results, errors
-
 
 def main():
     all_results = []
     errors = []
+    checked_at = datetime.now(timezone.utc).isoformat()
 
-    for source in SOURCES:
-        results, source_errors = scan_source(source)
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
 
-        print(
-            f'{source["name"]}: '
-            f'找到 {len(results)} 筆公告候選'
-        )
+        for source in SOURCES:
+            source_results = []
 
-        all_results.extend(results)
-        errors.extend(source_errors)
+            for page_url in source["pages"]:
+                try:
+                    page = browser.new_page(
+                        user_agent=(
+                            "Mozilla/5.0 "
+                            "ReoNaEventTracker/4.0"
+                        )
+                    )
 
-    unique = {}
+                    print(f"\n正在開啟：{page_url}")
 
-    for item in all_results:
-        unique[item["url"]] = item
+                    page.goto(
+                        page_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000
+                    )
+
+                    page.wait_for_timeout(5000)
+
+                    frames = page.frames
+
+                    print(
+                        f"檢查頁面及 iframe：{len(frames)} 個"
+                    )
+
+                    for frame in frames:
+                        try:
+                            links = frame.locator(
+                                "a[href]"
+                            ).evaluate_all(
+                                """els => els.map(a => ({
+                                    title: (
+                                        a.innerText ||
+                                        a.getAttribute("aria-label") ||
+                                        a.querySelector("img")?.alt ||
+                                        ""
+                                    ).trim(),
+                                    href: a.href,
+                                    context: (
+                                        a.parentElement?.innerText ||
+                                        a.innerText ||
+                                        ""
+                                    ).trim()
+                                }))"""
+                            )
+
+                            print(
+                                f"Frame：{frame.url}"
+                            )
+                            print(
+                                f"找到連結：{len(links)} 筆"
+                            )
+
+                            for link in links:
+                                url = urljoin(
+                                    frame.url or page_url,
+                                    link["href"]
+                                )
+                                url, _ = urldefrag(url)
+
+                                parsed = urlparse(url)
+
+                                if (
+                                    parsed.netloc
+                                    != source["domain"]
+                                ):
+                                    continue
+
+                                title = (
+                                    link["title"]
+                                    or link["context"][:80]
+                                    or "未命名公告"
+                                )
+
+                                if source["name"] == "Sony Music":
+                                    is_article = bool(
+                                        SONY_ARTICLE_PATTERN.fullmatch(
+                                            parsed.path
+                                        )
+                                    )
+                                else:
+                                    is_article = (
+                                        parsed.path != "/"
+                                        and len(
+                                            parsed.path.strip("/")
+                                        ) > 3
+                                    )
+
+                                if not is_article:
+                                    continue
+
+                                date_match = DATE_PATTERN.search(
+                                    link["context"]
+                                )
+
+                                source_results.append({
+                                    "title": title,
+                                    "url": url,
+                                    "source": source["name"],
+                                    "publicationDate": (
+                                        date_match.group(0)
+                                        if date_match
+                                        else None
+                                    ),
+                                })
+
+                                print(
+                                    f"公告候選：{title} | {url}"
+                                )
+
+                        except Exception as error:
+                            print(
+                                f"Frame 讀取問題：{error}"
+                            )
+
+                    page.close()
+
+                except Exception as error:
+                    errors.append(
+                        f"{page_url}: {error}"
+                    )
+                    print(f"頁面讀取失敗：{error}")
+
+            print(
+                f'{source["name"]}: '
+                f'找到 {len(source_results)} 筆公告候選'
+            )
+
+            all_results.extend(source_results)
+
+        browser.close()
+
+    unique = {
+        item["url"]: item
+        for item in all_results
+    }
 
     output = {
-        "checkedAt": datetime.now(
-            timezone.utc
-        ).isoformat(),
+        "checkedAt": checked_at,
         "announcements": list(unique.values()),
         "errors": errors,
-        "note": "公告候選清單，尚未人工確認。",
+        "note": "瀏覽器擷取公告候選，尚未人工確認。",
     }
 
     Path("site").mkdir(exist_ok=True)
@@ -195,11 +198,11 @@ def main():
             ensure_ascii=False,
             indent=2
         ),
-        encoding="utf-8",
+        encoding="utf-8"
     )
 
     print(
-        f"完成：共整理 {len(unique)} 筆公告候選。"
+        f"\n完成：共整理 {len(unique)} 筆公告候選。"
     )
 
     if errors:
@@ -208,4 +211,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
