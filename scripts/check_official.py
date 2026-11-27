@@ -172,27 +172,30 @@ def main():
             )
 
             all_results.extend(source_results)
-# 測試讀取第一篇公告的完整內文
-    if unique:
-        test_url = list(unique.values())[0]["url"]
 
-        print("\n===== 公告內文測試 =====")
-        print(f"網址：{test_url}")
+        # 測試讀取第一篇公告的完整內文
+        if unique:
+            test_url = list(unique.values())[0]["url"]
 
-        test_page = browser.new_page()
-        test_page.goto(
-            test_url,
-            wait_until="domcontentloaded",
-            timeout=60000
-        )
-        test_page.wait_for_timeout(3000)
+            print("\n===== 公告內文測試 =====")
+            print(f"網址：{test_url}")
 
-        article_text = test_page.locator("body").inner_text()
+            test_page = browser.new_page()
+            test_page.goto(
+                test_url,
+                wait_until="domcontentloaded",
+                timeout=60000
+            )
+            test_page.wait_for_timeout(3000)
 
-        print(article_text[:3000])
+            article_text = test_page.locator("body").inner_text()
+
+            print(article_text[:3000])
 
             test_page.close()
+
         browser.close()
+
 
     unique = {
         item["url"]: item
