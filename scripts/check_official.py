@@ -8,6 +8,10 @@ from urllib.parse import urljoin, urlparse, urldefrag
 from playwright.sync_api import sync_playwright
 
 
+# =====================================
+# 官方網站來源
+# =====================================
+
 SOURCES = [
     {
         "name": "ReoNa 官方網站",
@@ -27,6 +31,7 @@ SOURCES = [
     },
 ]
 
+
 SONY_ARTICLE_PATTERN = re.compile(
     r"^/artist/ReoNa/(?:info|live)/\d+/?$"
 )
@@ -35,21 +40,10 @@ DATE_PATTERN = re.compile(
     r"20\d{2}[./年-]\d{1,2}[./月-]\d{1,2}日?"
 )
 
-# 可能出現在公告正文後方的網站區塊標記
-FOOTER_MARKERS = [
-    "LATEST NEWS",
-    "最新ニュース",
-    "最新情報",
-    "ニュース一覧",
-    "関連ニュース",
-    "関連リンク",
-    "サイトマップ",
-    "プライバシーポリシー",
-    "個人情報保護方針",
-    "© Sony Music",
-    "©Sony Music",
-]
 
+# =====================================
+# 搜尋官方公告
+# =====================================
 
 def collect_announcements(browser):
 
@@ -66,12 +60,7 @@ def collect_announcements(browser):
 
             try:
 
-                page = browser.new_page(
-                    user_agent=(
-                        "Mozilla/5.0 "
-                        "ReoNaEventTracker/6.0"
-                    )
-                )
+                page = browser.new_page()
 
                 print(f"\n正在開啟：{page_url}")
 
@@ -101,7 +90,9 @@ def collect_announcements(browser):
                                     a.querySelector("img")?.alt ||
                                     ""
                                 ).trim(),
+
                                 href: a.href,
+
                                 context: (
                                     a.parentElement?.innerText ||
                                     a.innerText ||
@@ -127,12 +118,6 @@ def collect_announcements(browser):
                             if parsed.netloc != source["domain"]:
                                 continue
 
-                            title = (
-                                link["title"]
-                                or link["context"][:80]
-                                or "未命名公告"
-                            )
-
                             if source["name"] == "Sony Music":
 
                                 is_article = bool(
@@ -143,8 +128,6 @@ def collect_announcements(browser):
 
                             else:
 
-                                # 官方網站文章網址格式
-                                # 尚待確認，暫時不收集
                                 is_article = False
 
                             if not is_article:
@@ -155,7 +138,10 @@ def collect_announcements(browser):
                             )
 
                             source_results.append({
-                                "title": title,
+                                "title": (
+                                    link["title"]
+                                    or "未命名公告"
+                                ),
                                 "url": url,
                                 "source": source["name"],
                                 "publicationDate": (
@@ -164,10 +150,6 @@ def collect_announcements(browser):
                                     else None
                                 ),
                             })
-
-                            print(
-                                f"公告候選：{title} | {url}"
-                            )
 
                     except Exception as error:
 
@@ -183,7 +165,7 @@ def collect_announcements(browser):
                 message = f"{page_url}: {error}"
 
                 errors.append(message)
-                print(f"頁面讀取失敗：{error}")
+                print(message)
 
             finally:
 
@@ -209,54 +191,9 @@ def collect_announcements(browser):
     return list(unique.values()), errors
 
 
-def clean_article_text(page, title):
-
-    # 讀取整頁文字
-    full_text = page.locator("body").inner_text()
-
-    full_text = full_text.strip()
-
-    # 以公告標題作為正文起點
-    title_position = full_text.find(title)
-
-    if title_position < 0:
-
-        # 如果連結標題與頁面標題不完全相同，
-        # 改用頁面 H1 標題尋找正文
-        h1 = page.locator("h1").first
-
-        if h1.count() > 0:
-
-            actual_title = h1.inner_text().strip()
-
-            title_position = full_text.find(actual_title)
-
-    if title_position >= 0:
-
-        article_text = full_text[title_position:]
-
-    else:
-
-        # 找不到標題時保留全文，
-        # 避免誤刪公告正文
-        article_text = full_text
-
-    # 排除公告正文後方的網站導覽區域
-    cut_positions = []
-
-    for marker in FOOTER_MARKERS:
-
-        position = article_text.find(marker)
-
-        if position > 0:
-            cut_positions.append(position)
-
-    if cut_positions:
-
-        article_text = article_text[:min(cut_positions)]
-
-    return article_text.strip()
-
+# =====================================
+# 擷取真正的公告正文
+# =====================================
 
 def fetch_article_content(browser, announcements, errors):
 
@@ -268,17 +205,12 @@ def fetch_article_content(browser, announcements, errors):
 
         print(
             f'\n[{index}/{len(announcements)}] '
-            f'正在讀取：{item["title"]}'
+            f'正在讀取：{item["url"]}'
         )
 
         try:
 
-            page = browser.new_page(
-                user_agent=(
-                    "Mozilla/5.0 "
-                    "ReoNaEventTracker/6.0"
-                )
-            )
+            page = browser.new_page()
 
             page.goto(
                 item["url"],
@@ -286,17 +218,59 @@ def fetch_article_content(browser, announcements, errors):
                 timeout=60000
             )
 
-            page.wait_for_timeout(3000)
-
-            article_text = clean_article_text(
-                page,
-                item["title"]
+            # 等待公告內容載入
+            page.locator(
+                "div.a-content"
+            ).first.wait_for(
+                state="visible",
+                timeout=20000
             )
 
+            page.wait_for_timeout(2000)
+
+            # 擷取正式公告標題
+            heading = page.locator(
+                "h1.p-infoHeader__title"
+            ).first
+
+            if heading.count() > 0:
+
+                item["articleTitle"] = (
+                    heading.inner_text().strip()
+                )
+
+            else:
+
+                item["articleTitle"] = item["title"]
+
+            # 使用已確認的正文容器
+            content = page.locator(
+                "div.a-content.a-content--info.content-loaded"
+            ).first
+
+            if content.count() == 0:
+
+                # 備用選擇器：只允許公告內容區塊
+                content = page.locator(
+                    "div.a-content"
+                ).first
+
+            if content.count() == 0:
+
+                raise Exception(
+                    "找不到公告正文容器"
+                )
+
+            article_text = content.inner_text().strip()
+
             if not article_text:
-                raise Exception("公告正文為空")
+
+                raise Exception(
+                    "公告正文內容為空"
+                )
 
             item["content"] = article_text
+
             item["contentStatus"] = "success"
 
             item["contentFetchedAt"] = (
@@ -308,13 +282,19 @@ def fetch_article_content(browser, announcements, errors):
             )
 
             print(
-                f"正文預覽：{article_text[:180]}"
+                f'正式標題：{item["articleTitle"]}'
+            )
+
+            print(
+                f"正文預覽：{article_text[:250]}"
             )
 
         except Exception as error:
 
             item["content"] = ""
+
             item["contentStatus"] = "failed"
+
             item["contentError"] = str(error)
 
             message = (
@@ -323,6 +303,7 @@ def fetch_article_content(browser, announcements, errors):
             )
 
             errors.append(message)
+
             print(message)
 
         finally:
@@ -330,6 +311,10 @@ def fetch_article_content(browser, announcements, errors):
             if page is not None:
                 page.close()
 
+
+# =====================================
+# 主程式
+# =====================================
 
 def main():
 
@@ -351,30 +336,44 @@ def main():
 
         browser.close()
 
+    # =====================================
+    # 統計
+    # =====================================
+
     success_count = sum(
-        1 for item in announcements
+        1
+        for item in announcements
         if item.get("contentStatus") == "success"
     )
 
     failed_count = sum(
-        1 for item in announcements
+        1
+        for item in announcements
         if item.get("contentStatus") == "failed"
     )
 
     output = {
         "checkedAt": checked_at,
+
         "announcements": announcements,
+
         "statistics": {
             "total": len(announcements),
             "contentSuccess": success_count,
             "contentFailed": failed_count,
         },
+
         "errors": errors,
+
         "note": (
-            "已擷取公告正文，"
+            "已使用 Sony Music 公告正文容器擷取內容，"
             "尚未進行活動分類及日期辨識。"
         ),
     }
+
+    # =====================================
+    # 儲存 JSON
+    # =====================================
 
     Path("site").mkdir(exist_ok=True)
 
