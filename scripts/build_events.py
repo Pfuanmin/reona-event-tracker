@@ -196,8 +196,6 @@ CONTENT_RULES = [
 
 # =====================================
 # 日期格式
-# 一次處理完整日期及沒有年份的日期
-# 避免 YYYY年MM月DD日 被重複抓取
 # =====================================
 
 DATE_PATTERN = re.compile(
@@ -374,35 +372,26 @@ def get_reference_year(item):
 
 
 # =====================================
-# 從日期附近尋找明確年份
+# 取得日期所在句子
+# 不再使用前後 100 字元
 # =====================================
 
-def find_nearby_year(text, position, reference_year):
+def get_date_sentence(text, start, end):
 
-    start = max(0, position - 100)
-    end = min(len(text), position + 100)
+    boundaries = "。！？!?；;\n\r"
 
-    context = text[start:end]
+    left = start
+    right = end
 
-    matches = list(
-        re.finditer(r"20\d{2}", context)
-    )
+    while left > 0 and text[left - 1] not in boundaries:
+        left -= 1
 
-    if matches:
+    while right < len(text) and text[right] not in boundaries:
+        right += 1
 
-        nearest = min(
-            matches,
-            key=lambda match: abs(
-                (start + match.start()) - position
-            )
-        )
+    sentence = text[left:right].strip()
 
-        return int(nearest.group()), False
-
-    if reference_year is not None:
-        return reference_year, True
-
-    return None, True
+    return sentence
 
 
 # =====================================
@@ -444,18 +433,17 @@ def extract_dates(text, reference_year=None):
         month = int(match.group("month"))
         day = int(match.group("day"))
 
+        # 完整日期使用明確年份
         if year_text:
 
             year = int(year_text)
             inferred = False
 
+        # 沒有年份時，不再任意抓取附近其他年份
         else:
 
-            year, inferred = find_nearby_year(
-                normalized,
-                match.start(),
-                reference_year
-            )
+            year = reference_year
+            inferred = True
 
         if year is None:
             continue
@@ -471,24 +459,16 @@ def extract_dates(text, reference_year=None):
         except ValueError:
             continue
 
-        start = max(
-            0,
-            match.start() - 100
-        )
-
-        end = min(
-            len(normalized),
-            match.end() + 100
-        )
-
-        context = normalized[start:end].replace(
-            "\n",
-            " "
+        # 只使用日期所在句子判斷用途
+        context = get_date_sentence(
+            normalized,
+            match.start(),
+            match.end()
         )
 
         role = identify_date_role(context)
 
-        # 相同日期、相同用途只保留一筆
+        # 相同日期及用途只保留一筆
         key = (
             date_value,
             role
@@ -547,7 +527,7 @@ def suggest_category(title, content):
 
     normalized_title = normalize_text(title)
 
-    # 先判斷明確的周邊及特典公告
+    # 明確的周邊及特典公告
     explicit_merch_patterns = [
         r"オフィシャルグッズ",
         r"グッズ販売",
@@ -567,7 +547,7 @@ def suggest_category(title, content):
         ):
             return "周邊商品及特典", "標題判斷"
 
-    # T-shirt 等附加特典不應蓋過音樂作品發售
+    # 其他標題分類
     category = match_rules(
         normalized_title,
         TITLE_RULES
@@ -576,6 +556,7 @@ def suggest_category(title, content):
     if category != "未分類":
         return category, "標題判斷"
 
+    # 正文備用分類
     category = match_rules(
         content,
         CONTENT_RULES
@@ -862,9 +843,9 @@ def main():
 
         "note": (
             "本檔案僅供活動候選資料分析及人工確認。"
-            "完整日期優先使用公告明確標示的年份。"
-            "未標示年份的日期優先尋找附近明確年份，"
-            "再使用公告參考年份推定。"
+            "完整日期使用公告明確標示的年份。"
+            "未標示年份的日期使用公告參考年份推定。"
+            "日期用途以日期所在句子判斷。"
             "相同日期及用途的紀錄只保留一筆。"
             "本程式不會修改 events.json。"
         ),
