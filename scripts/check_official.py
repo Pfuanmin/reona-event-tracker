@@ -1,6 +1,7 @@
 
 import json
 import re
+import html
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin, urlparse, urldefrag
@@ -32,13 +33,36 @@ SOURCES = [
 ]
 
 
+# 只接受單篇 INFO 公告
 SONY_ARTICLE_PATTERN = re.compile(
-    r"^/artist/ReoNa/(?:info|live)/\d+/?$"
+    r"^/artist/ReoNa/info/\d+/?$"
 )
 
 DATE_PATTERN = re.compile(
     r"20\d{2}[./年-]\d{1,2}[./月-]\d{1,2}日?"
 )
+
+
+# =====================================
+# 清理網址
+# =====================================
+
+def clean_url(value):
+    if not value:
+        return ""
+
+    value = html.unescape(str(value)).strip()
+
+    # 處理 Markdown 格式：[網址](網址)
+    match = re.fullmatch(
+        r"\[.*?\]\((https?://.*?)\)",
+        value
+    )
+
+    if match:
+        value = match.group(1)
+
+    return value.strip()
 
 
 # =====================================
@@ -59,7 +83,6 @@ def collect_announcements(browser):
             page = None
 
             try:
-
                 page = browser.new_page()
 
                 print(f"\n正在開啟：{page_url}")
@@ -79,7 +102,6 @@ def collect_announcements(browser):
                 for frame in page.frames:
 
                     try:
-
                         links = frame.locator(
                             "a[href]"
                         ).evaluate_all(
@@ -91,7 +113,7 @@ def collect_announcements(browser):
                                     ""
                                 ).trim(),
 
-                                href: a.href,
+                                href: a.getAttribute("href"),
 
                                 context: (
                                     a.parentElement?.innerText ||
@@ -106,9 +128,14 @@ def collect_announcements(browser):
 
                         for link in links:
 
+                            raw_href = clean_url(link["href"])
+
+                            if not raw_href:
+                                continue
+
                             url = urljoin(
                                 frame.url or page_url,
-                                link["href"]
+                                raw_href
                             )
 
                             url, _ = urldefrag(url)
@@ -119,15 +146,12 @@ def collect_announcements(browser):
                                 continue
 
                             if source["name"] == "Sony Music":
-
                                 is_article = bool(
                                     SONY_ARTICLE_PATTERN.fullmatch(
                                         parsed.path
                                     )
                                 )
-
                             else:
-
                                 is_article = False
 
                             if not is_article:
@@ -168,7 +192,6 @@ def collect_announcements(browser):
                 print(message)
 
             finally:
-
                 if page is not None:
                     page.close()
 
@@ -179,20 +202,23 @@ def collect_announcements(browser):
 
         all_results.extend(source_results)
 
+    # 依網址去重
     unique = {
         item["url"]: item
         for item in all_results
     }
 
+    results = list(unique.values())
+
     print(
-        f"\n去除重複後：{len(unique)} 筆公告"
+        f"\n去除重複後：{len(results)} 筆公告"
     )
 
-    return list(unique.values()), errors
+    return results, errors
 
 
 # =====================================
-# 擷取真正的公告正文
+# 擷取公告正文及超連結
 # =====================================
 
 def fetch_article_content(browser, announcements, errors):
@@ -209,7 +235,6 @@ def fetch_article_content(browser, announcements, errors):
         )
 
         try:
-
             page = browser.new_page()
 
             page.goto(
@@ -218,64 +243,113 @@ def fetch_article_content(browser, announcements, errors):
                 timeout=60000
             )
 
-            # 等待公告內容載入
-            page.locator(
-                "div.a-content"
-            ).first.wait_for(
+            # 等待真正的公告正文載入
+            content = page.locator(
+                ".p-infoContent"
+            ).first
+
+            content.wait_for(
                 state="visible",
-                timeout=20000
+                timeout=30000
             )
 
             page.wait_for_timeout(2000)
 
-            # 擷取正式公告標題
+            # 正式公告標題
             heading = page.locator(
                 "h1.p-infoHeader__title"
             ).first
 
             if heading.count() > 0:
-
                 item["articleTitle"] = (
                     heading.inner_text().strip()
                 )
-
             else:
-
                 item["articleTitle"] = item["title"]
 
-            # 使用已確認的正文容器
-            content = page.locator(
-                "div.a-content.a-content--info.content-loaded"
+            # 正式公告日期資訊
+            meta = page.locator(
+                ".p-infoHeader__meta"
             ).first
 
-            if content.count() == 0:
-
-                # 備用選擇器：只允許公告內容區塊
-                content = page.locator(
-                    "div.a-content"
-                ).first
-
-            if content.count() == 0:
-
-                raise Exception(
-                    "找不到公告正文容器"
+            if meta.count() > 0:
+                item["articleMeta"] = (
+                    meta.inner_text().strip()
                 )
 
+                date_match = DATE_PATTERN.search(
+                    item["articleMeta"]
+                )
+
+                if date_match:
+                    item["publicationDate"] = (
+                        date_match.group(0)
+                    )
+
+            # 只擷取真正的公告正文
             article_text = content.inner_text().strip()
 
             if not article_text:
-
-                raise Exception(
-                    "公告正文內容為空"
-                )
+                raise Exception("公告正文內容為空")
 
             item["content"] = article_text
+
+            # 獨立擷取正文內的超連結
+            raw_links = content.locator(
+                "a[href]"
+            ).evaluate_all(
+                """els => els.map(a => ({
+                    text: (
+                        a.innerText ||
+                        a.getAttribute("aria-label") ||
+                        a.querySelector("img")?.alt ||
+                        ""
+                    ).trim(),
+                    href: a.getAttribute("href")
+                }))"""
+            )
+
+            article_links = []
+            seen_urls = set()
+
+            for link in raw_links:
+
+                raw_href = clean_url(link["href"])
+
+                if not raw_href:
+                    continue
+
+                link_url = urljoin(
+                    item["url"],
+                    raw_href
+                )
+
+                link_url, _ = urldefrag(link_url)
+
+                parsed_link = urlparse(link_url)
+
+                if parsed_link.scheme not in ("http", "https"):
+                    continue
+
+                if link_url in seen_urls:
+                    continue
+
+                seen_urls.add(link_url)
+
+                article_links.append({
+                    "text": link["text"],
+                    "url": link_url,
+                })
+
+            item["links"] = article_links
 
             item["contentStatus"] = "success"
 
             item["contentFetchedAt"] = (
                 datetime.now(timezone.utc).isoformat()
             )
+
+            item.pop("contentError", None)
 
             print(
                 f"正文擷取成功：{len(article_text)} 個字元"
@@ -286,15 +360,18 @@ def fetch_article_content(browser, announcements, errors):
             )
 
             print(
+                f"超連結數量：{len(article_links)}"
+            )
+
+            print(
                 f"正文預覽：{article_text[:250]}"
             )
 
         except Exception as error:
 
             item["content"] = ""
-
+            item["links"] = []
             item["contentStatus"] = "failed"
-
             item["contentError"] = str(error)
 
             message = (
@@ -303,11 +380,9 @@ def fetch_article_content(browser, announcements, errors):
             )
 
             errors.append(message)
-
             print(message)
 
         finally:
-
             if page is not None:
                 page.close()
 
@@ -366,8 +441,8 @@ def main():
         "errors": errors,
 
         "note": (
-            "已使用 Sony Music 公告正文容器擷取內容，"
-            "尚未進行活動分類及日期辨識。"
+            "已使用 Sony Music 正式公告標題、日期及正文容器，"
+            "並獨立擷取公告內超連結；尚未進行活動分類及日期辨識。"
         ),
     }
 
