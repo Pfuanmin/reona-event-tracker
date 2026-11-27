@@ -3,7 +3,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, urldefrag
 
 import requests
 from bs4 import BeautifulSoup
@@ -13,8 +13,6 @@ SOURCES = [
         "name": "ReoNa 官方網站",
         "pages": [
             "https://www.reona-reona.com/",
-            "https://www.reona-reona.com/news/",
-            "https://www.reona-reona.com/live/",
         ],
         "domain": "www.reona-reona.com",
     },
@@ -30,7 +28,7 @@ SOURCES = [
 ]
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 ReoNaEventTracker/2.0"
+    "User-Agent": "Mozilla/5.0 ReoNaEventTracker/3.0"
 }
 
 DATE_PATTERN = re.compile(
@@ -44,13 +42,46 @@ KEYWORDS = [
     "受付", "振替", "中止", "延期",
 ]
 
+# Sony Music 公告文章網址必須包含數字文章編號
+SONY_ARTICLE_PATTERN = re.compile(
+    r"^/artist/ReoNa/(?:info|live)/\d+/?$"
+)
+
+
 def fetch_page(url):
     response = requests.get(
-        url, headers=HEADERS, timeout=30
+        url,
+        headers=HEADERS,
+        timeout=30
     )
     response.raise_for_status()
     response.encoding = response.apparent_encoding
-    return BeautifulSoup(response.text, "html.parser")
+
+    return BeautifulSoup(
+        response.text,
+        "html.parser"
+    )
+
+
+def is_article_url(url, source):
+    parsed = urlparse(url)
+
+    if parsed.netloc != source["domain"]:
+        return False
+
+    path = parsed.path
+
+    if source["name"] == "Sony Music":
+        return bool(
+            SONY_ARTICLE_PATTERN.fullmatch(path)
+        )
+
+    # 官方網站只排除首頁及已知分類入口，
+    # 不把分類頁面當成公告文章。
+    if path in ["/", "/news/", "/live/"]:
+        return False
+
+    return len(path.strip("/")) > 3
 
 
 def scan_source(source):
@@ -75,15 +106,15 @@ def scan_source(source):
                     continue
 
                 url = urljoin(page_url, link["href"])
-                parsed = urlparse(url)
+                url, _ = urldefrag(url)
 
-                if parsed.netloc != source["domain"]:
+                if not is_article_url(url, source):
                     continue
 
                 context = title
                 parent = link
 
-                for _ in range(4):
+                for _ in range(3):
                     if parent.parent:
                         parent = parent.parent
                         context += " " + parent.get_text(
@@ -101,17 +132,11 @@ def scan_source(source):
                     DATE_PATTERN.search(context)
                 )
 
-                is_detail = (
-                    "/info/" in parsed.path
-                    or "/news/" in parsed.path
-                    or "/live/" in parsed.path
-                )
-
-                if not (
-                    has_keyword
-                    and (has_date or is_detail)
-                ):
-                    continue
+                # Sony Music 的數字文章網址已通過文章格式檢查；
+                # 官方網站則需要有日期或公告關鍵字。
+                if source["name"] != "Sony Music":
+                    if not (has_keyword or has_date):
+                        continue
 
                 date_match = DATE_PATTERN.search(context)
 
