@@ -1,22 +1,6 @@
 {
-  "checkedAt": "2026-11-27T00:21:07.561653+00:00",
-  "announcements": [
-    {
-      "title": "ニュース",
-      "url": "https://www.sonymusic.co.jp/artist/ReoNa/info/",
-      "source": "Sony Music",
-      "publicationDate": null
-    },
-    {
-      "title": "ライブ / イベント",
-      "url": "https://www.sonymusic.co.jp/artist/ReoNa/live/",
-      "source": "Sony Music",
-      "publicationDate": null
-    }
-  ],
-  "errors": [
-    "https://www.reona-reona.com/news/: 404 Client Error: Not Found for url: https://www.reona-reona.com/news/",
-    "https://www.reona-reona.com/live/: 404 Client Error: Not Found for url: https://www.reona-reona.com/live/"
-  ],
+  "checkedAt": "2026-11-27T00:55:06.614829+00:00",
+  "announcements": [],
+  "errors": [],
   "note": "公告候選清單，尚未人工確認。"
 }
