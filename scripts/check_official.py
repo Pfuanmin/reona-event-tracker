@@ -191,7 +191,7 @@ def main():
 
         print(article_text[:3000])
 
-        test_page.close()
+            test_page.close()
         browser.close()
 
     unique = {
