@@ -1,102 +1,77 @@
 
 from playwright.sync_api import sync_playwright
+import json
 
-URL = (
-    "https://www.sonymusic.co.jp/"
-    "artist/ReoNa/info/588829"
-)
+URLS = [
+    "https://www.sonymusic.co.jp/artist/ReoNa/info/588829",
+    "https://www.sonymusic.co.jp/artist/ReoNa/live/587352",
+]
 
+JS_INSPECT = r"""
+() => {
+    const root = document.querySelector(
+        "div.a-content.a-content--info.content-loaded"
+    ) || document.querySelector("div.a-content");
 
-def main():
+    if (!root) {
+        return { found: false };
+    }
 
-    with sync_playwright() as p:
+    function describe(el, depth = 0) {
+        if (depth > 5) return null;
 
-        browser = p.chromium.launch(headless=True)
+        return {
+            tag: el.tagName,
+            id: el.id || "",
+            className: typeof el.className === "string"
+                ? el.className
+                : "",
+            textLength: (el.innerText || "").length,
+            textPreview: (el.innerText || "")
+                .replace(/\s+/g, " ")
+                .slice(0, 180),
+            children: Array.from(el.children)
+                .map(child => describe(child, depth + 1))
+                .filter(Boolean)
+        };
+    }
 
-        page = browser.new_page()
+    const anchors = Array.from(root.querySelectorAll("a"))
+        .map(a => ({
+            text: (a.textContent || "").trim(),
+            href: a.href
+        }))
+        .filter(a => a.text || a.href);
 
-        page.goto(
-            URL,
-            wait_until="domcontentloaded",
-            timeout=60000
-        )
+    return {
+        found: true,
+        root: describe(root),
+        anchors: anchors.slice(0, 80)
+    };
+}
+"""
 
-        page.wait_for_timeout(3000)
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
 
-        print("\n===== 頁面標題 =====")
-        print(page.title())
+    for url in URLS:
+        print("\n" + "=" * 80)
+        print("網址：", url)
 
-        print("\n===== H1 及父層結構 =====")
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(3000)
 
-        result = page.locator("h1").evaluate_all(
-            """elements => elements.map(h1 => {
+            result = page.evaluate(JS_INSPECT)
 
-                let current = h1;
-                let output = [];
+            print(json.dumps(
+                result,
+                ensure_ascii=False,
+                indent=2
+            ))
 
-                for (let i = 0; i < 8 && current; i++) {
+        except Exception as e:
+            print("檢查失敗：", str(e))
 
-                    output.push({
-                        level: i,
-                        tag: current.tagName,
-                        id: current.id,
-                        className: (
-                            typeof current.className === "string"
-                            ? current.className
-                            : ""
-                        ),
-                        textLength: (
-                            current.innerText || ""
-                        ).length,
-                        childCount: current.children.length,
-                        textPreview: (
-                            current.innerText || ""
-                        ).slice(0, 180)
-                    });
-
-                    current = current.parentElement;
-                }
-
-                return output;
-            })"""
-        )
-
-        for index, item in enumerate(result):
-
-            print(f"\nH1 #{index + 1}")
-
-            for parent in item:
-
-                print(
-                    f'\n層級：{parent["level"]}'
-                )
-
-                print(
-                    f'標籤：{parent["tag"]}'
-                )
-
-                print(
-                    f'ID：{parent["id"]}'
-                )
-
-                print(
-                    f'Class：{parent["className"]}'
-                )
-
-                print(
-                    f'文字長度：{parent["textLength"]}'
-                )
-
-                print(
-                    f'子元素數量：{parent["childCount"]}'
-                )
-
-                print(
-                    f'文字預覽：{parent["textPreview"]}'
-                )
-
-        browser.close()
-
-
-if __name__ == "__main__":
-    main()
+    browser.close()
