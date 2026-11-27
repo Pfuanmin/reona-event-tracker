@@ -2,6 +2,7 @@
 import json
 import re
 import hashlib
+import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -28,6 +29,172 @@ CATEGORIES = [
     "音樂作品及發售",
     "周邊商品及特典",
     "線上直播及配信",
+    "未分類",
+]
+
+
+# =====================================
+# 分類規則
+# 優先判斷公告標題，避免正文關鍵字誤判
+# =====================================
+
+TITLE_RULES = [
+    (
+        "粉絲俱樂部活動",
+        [
+            r"ふあんくらぶ",
+            r"ファンクラブ",
+            r"FC限定",
+            r"会員限定",
+            r"FCイベント",
+        ],
+    ),
+    (
+        "周邊商品及特典",
+        [
+            r"オフィシャルグッズ",
+            r"グッズ販売",
+            r"グッズ",
+            r"購入特典",
+            r"予約特典",
+            r"会場予約特典",
+            r"会場限定特典",
+            r"特典決定",
+            r"Tシャツ",
+        ],
+    ),
+    (
+        "公開活動及合作演出",
+        [
+            r"リリースイベント",
+            r"振替日程",
+            r"イベント出演",
+            r"ゲスト出演",
+            r"公開収録",
+            r"イベント開催",
+        ],
+    ),
+    (
+        "電視、廣播及網路節目",
+        [
+            r"テレビ出演",
+            r"ラジオ出演",
+            r"番組出演",
+            r"放送決定",
+            r"メディア出演",
+        ],
+    ),
+    (
+        "演唱會及 Live",
+        [
+            r"CONCERT",
+            r"コンサート",
+            r"ワンマン",
+            r"TOUR",
+            r"ツアー",
+            r"ライブ開催",
+            r"公演情報",
+            r"公演決定",
+        ],
+    ),
+    (
+        "線上直播及配信",
+        [
+            r"リリックビデオ",
+            r"Lyric Video",
+            r"プレミア公開",
+            r"YouTube Premiere",
+            r"生配信",
+            r"ライブ配信",
+            r"配信番組",
+        ],
+    ),
+    (
+        "音樂作品及發售",
+        [
+            r"アルバム",
+            r"ベストアルバム",
+            r"シングル",
+            r"楽曲配信",
+            r"先行配信",
+            r"配信リリース",
+            r"Pre-add",
+            r"Pre-save",
+            r"発売決定",
+            r"リリース決定",
+            r"配信リリース",
+            r"発売",
+        ],
+    ),
+]
+
+
+# =====================================
+# 正文備用分類規則
+# 僅在標題無法判斷時使用
+# =====================================
+
+CONTENT_RULES = [
+    (
+        "粉絲俱樂部活動",
+        [
+            r"ファンクラブ限定",
+            r"FC限定イベント",
+            r"会員限定イベント",
+        ],
+    ),
+    (
+        "周邊商品及特典",
+        [
+            r"オフィシャルグッズ",
+            r"購入特典",
+            r"予約特典",
+            r"会場販売",
+            r"特典付き",
+        ],
+    ),
+    (
+        "公開活動及合作演出",
+        [
+            r"リリースイベント",
+            r"ゲスト出演",
+            r"イベント出演",
+        ],
+    ),
+    (
+        "電視、廣播及網路節目",
+        [
+            r"テレビ出演",
+            r"ラジオ出演",
+            r"番組出演",
+        ],
+    ),
+    (
+        "演唱會及 Live",
+        [
+            r"コンサートツアー",
+            r"ワンマンライブ",
+            r"全国ツアー",
+            r"公演日程",
+        ],
+    ),
+    (
+        "線上直播及配信",
+        [
+            r"プレミア公開",
+            r"生配信",
+            r"ライブ配信",
+        ],
+    ),
+    (
+        "音樂作品及發售",
+        [
+            r"ベストアルバム",
+            r"シングル発売",
+            r"先行配信",
+            r"配信リリース",
+        ],
+    ),
 ]
 
 
@@ -45,92 +212,84 @@ DATE_PATTERNS = [
         r"(?P<month>\d{1,2})月\s*"
         r"(?P<day>\d{1,2})日"
     ),
+    re.compile(
+        r"(?P<month>\d{1,2})/"
+        r"(?P<day>\d{1,2})"
+    ),
 ]
 
 
 # =====================================
-# 分類關鍵字
+# 日期用途判斷
 # =====================================
 
-CATEGORY_KEYWORDS = [
+DATE_ROLE_RULES = [
     (
-        "演唱會及 Live",
+        "活動日期",
         [
-            "ワンマン",
-            "TOUR",
-            "ツアー",
-            "ライブ",
-            "公演",
-            "CONCERT",
-            "LIVE",
-        ],
-    ),
-    (
-        "粉絲俱樂部活動",
-        [
-            "ふあんくらぶ",
-            "ファンクラブ",
-            "FC限定",
-            "会員限定",
-            "FCイベント",
-        ],
-    ),
-    (
-        "公開活動及合作演出",
-        [
-            "リリースイベント",
+            "開催日",
+            "開催日時",
+            "公演日",
+            "公演日時",
+            "出演日",
+            "イベント開催",
             "振替日程",
-            "イベント出演",
-            "ゲスト出演",
-            "出演決定",
-            "公開収録",
+            "OPEN",
+            "START",
+            "開始",
+            "開催",
         ],
     ),
     (
-        "電視、廣播及網路節目",
+        "音樂作品發售日",
         [
-            "テレビ",
-            "ラジオ",
-            "番組出演",
-            "放送",
-            "メディア出演",
+            "発売日",
+            "発売",
+            "リリース日",
+            "リリース",
+            "配信スタート",
+            "配信開始",
+            "先行配信",
         ],
     ),
     (
-        "線上直播及配信",
+        "影片或節目公開日",
         [
-            "YouTube Premiere",
             "プレミア公開",
-            "生配信",
-            "ライブ配信",
-            "配信番組",
-            "配信決定",
+            "公開日時",
+            "公開",
+            "放送日",
+            "放送",
+            "配信日時",
+            "配信開始",
         ],
     ),
     (
-        "周邊商品及特典",
+        "報名或預約期間",
         [
-            "グッズ",
-            "Tシャツ",
+            "受付期間",
+            "応募期間",
+            "予約期間",
+            "対象期間",
+            "申込期間",
+            "エントリー",
+            "応募締切",
+            "受付開始",
+            "受付終了",
+            "締切",
+            "まで",
+        ],
+    ),
+    (
+        "特典或販售日期",
+        [
+            "販売期間",
+            "販売開始",
+            "販売時間",
             "購入特典",
             "予約特典",
-            "会場限定特典",
+            "会場販売",
             "特典",
-        ],
-    ),
-    (
-        "音樂作品及發售",
-        [
-            "アルバム",
-            "シングル",
-            "先行配信",
-            "配信リリース",
-            "楽曲配信",
-            "発売決定",
-            "リリース決定",
-            "発売",
-            "リリース",
-            "収録曲",
         ],
     ),
 ]
@@ -141,6 +300,7 @@ CATEGORY_KEYWORDS = [
 # =====================================
 
 def read_json(path, default):
+
     if not path.exists():
         print(f"找不到檔案：{path}")
         return default
@@ -149,6 +309,7 @@ def read_json(path, default):
         return json.loads(
             path.read_text(encoding="utf-8")
         )
+
     except Exception as error:
         raise RuntimeError(
             f"JSON 讀取失敗：{path}：{error}"
@@ -156,10 +317,26 @@ def read_json(path, default):
 
 
 # =====================================
+# 清理文字
+# =====================================
+
+def normalize_text(value):
+
+    if not value:
+        return ""
+
+    return unicodedata.normalize(
+        "NFKC",
+        str(value)
+    )
+
+
+# =====================================
 # 清理網址
 # =====================================
 
 def normalize_url(value):
+
     if not value:
         return ""
 
@@ -177,25 +354,47 @@ def normalize_url(value):
 
 
 # =====================================
-# 建立公告日期參考年份
+# 建立公告參考年份
 # =====================================
 
 def get_reference_year(item):
-    value = item.get("publicationDate") or ""
 
-    match = re.search(r"20\d{2}", str(value))
+    values = [
+        item.get("articleMeta"),
+        item.get("publicationDate"),
+        item.get("articleTitle"),
+        item.get("title"),
+    ]
 
-    if match:
-        return int(match.group())
+    for value in values:
 
-    value = item.get("articleMeta") or ""
+        match = re.search(
+            r"20\d{2}",
+            normalize_text(value)
+        )
 
-    match = re.search(r"20\d{2}", str(value))
-
-    if match:
-        return int(match.group())
+        if match:
+            return int(match.group())
 
     return None
+
+
+# =====================================
+# 日期用途判斷
+# =====================================
+
+def identify_date_role(context):
+
+    text = normalize_text(context)
+
+    for role, keywords in DATE_ROLE_RULES:
+
+        for keyword in keywords:
+
+            if keyword in text:
+                return role
+
+    return "用途待確認"
 
 
 # =====================================
@@ -210,9 +409,11 @@ def extract_dates(text, reference_year=None):
     if not text:
         return results
 
+    normalized = normalize_text(text)
+
     for pattern in DATE_PATTERNS:
 
-        for match in pattern.finditer(text):
+        for match in pattern.finditer(normalized):
 
             year_text = match.groupdict().get("year")
 
@@ -222,6 +423,7 @@ def extract_dates(text, reference_year=None):
             if year_text:
                 year = int(year_text)
                 inferred = False
+
             else:
                 year = reference_year
                 inferred = True
@@ -239,25 +441,44 @@ def extract_dates(text, reference_year=None):
             except ValueError:
                 continue
 
-            if date_value in seen:
+            key = (
+                date_value,
+                match.start()
+            )
+
+            if key in seen:
                 continue
 
-            seen.add(date_value)
+            seen.add(key)
 
-            start = max(0, match.start() - 45)
-            end = min(len(text), match.end() + 45)
+            start = max(
+                0,
+                match.start() - 100
+            )
+
+            end = min(
+                len(normalized),
+                match.end() + 100
+            )
+
+            context = normalized[start:end].replace(
+                "\n",
+                " "
+            )
 
             results.append({
                 "date": date_value,
                 "originalText": match.group(0),
                 "yearInferred": inferred,
-                "context": text[start:end].replace(
-                    "\n", " "
-                ),
+                "role": identify_date_role(context),
+                "context": context,
             })
 
     results.sort(
-        key=lambda item: item["date"]
+        key=lambda item: (
+            item["date"],
+            item["originalText"]
+        )
     )
 
     return results
@@ -267,22 +488,45 @@ def extract_dates(text, reference_year=None):
 # 分類建議
 # =====================================
 
-def suggest_category(title, content):
+def match_rules(text, rules):
 
-    text = (
-        str(title or "")
-        + "\n"
-        + str(content or "")
-    ).upper()
+    text = normalize_text(text)
 
-    for category, keywords in CATEGORY_KEYWORDS:
+    for category, patterns in rules:
 
-        for keyword in keywords:
+        for pattern in patterns:
 
-            if keyword.upper() in text:
+            if re.search(
+                pattern,
+                text,
+                flags=re.IGNORECASE
+            ):
                 return category
 
     return "未分類"
+
+
+def suggest_category(title, content):
+
+    # 第一優先：公告標題
+    category = match_rules(
+        title,
+        TITLE_RULES
+    )
+
+    if category != "未分類":
+        return category, "標題判斷"
+
+    # 第二優先：正文中的明確活動描述
+    category = match_rules(
+        content,
+        CONTENT_RULES
+    )
+
+    if category != "未分類":
+        return category, "正文判斷"
+
+    return "未分類", "無法判斷"
 
 
 # =====================================
@@ -343,20 +587,14 @@ def analyze_announcement(item, events):
         item.get("url")
     )
 
-    combined_text = (
-        str(title)
-        + "\n"
-        + str(content)
-    )
-
     reference_year = get_reference_year(item)
 
     dates = extract_dates(
-        combined_text,
+        str(title) + "\n" + str(content),
         reference_year
     )
 
-    category = suggest_category(
+    category, category_basis = suggest_category(
         title,
         content
     )
@@ -370,6 +608,7 @@ def analyze_announcement(item, events):
         "id": create_id(url or title),
         "title": title,
         "categorySuggestion": category,
+        "categoryBasis": category_basis,
         "dateCandidates": dates,
         "publicationDate": item.get(
             "publicationDate"
@@ -420,16 +659,10 @@ def main():
             "events.json 必須是 JSON 陣列"
         )
 
-    print(
-        f"公告數量：{len(announcements)}"
-    )
-
-    print(
-        f"現有活動數量：{len(events)}"
-    )
+    print(f"公告數量：{len(announcements)}")
+    print(f"現有活動數量：{len(events)}")
 
     candidates = []
-
     seen_urls = set()
 
     for item in announcements:
@@ -454,22 +687,29 @@ def main():
 
         candidates.append(candidate)
 
-        print(
-            "\n公告："
-            + candidate["title"]
-        )
+        print("\n公告：" + candidate["title"])
 
         print(
             "分類建議："
             + candidate["categorySuggestion"]
+            + "（"
+            + candidate["categoryBasis"]
+            + "）"
         )
 
         print(
             "日期候選："
-            + str(
-                len(candidate["dateCandidates"])
-            )
+            + str(len(candidate["dateCandidates"]))
         )
+
+        for date_item in candidate["dateCandidates"]:
+
+            print(
+                "  "
+                + date_item["date"]
+                + " | "
+                + date_item["role"]
+            )
 
     # =================================
     # 統計
@@ -484,6 +724,18 @@ def main():
         category_statistics[category] = (
             category_statistics.get(category, 0) + 1
         )
+
+    date_role_statistics = {}
+
+    for item in candidates:
+
+        for date_item in item["dateCandidates"]:
+
+            role = date_item["role"]
+
+            date_role_statistics[role] = (
+                date_role_statistics.get(role, 0) + 1
+            )
 
     output = {
         "generatedAt": datetime.now(
@@ -500,12 +752,14 @@ def main():
 
         "categoryStatistics": category_statistics,
 
+        "dateRoleStatistics": date_role_statistics,
+
         "candidates": candidates,
 
         "note": (
             "本檔案僅供活動候選資料分析及人工確認。"
-            "日期可能包含公告日期、預約期限及其他日期，"
-            "不可直接視為活動日期。"
+            "日期已依上下文提出用途分類，但仍可能有誤。"
+            "未標示年份的日期使用公告參考年份推定。"
             "本程式不會修改 events.json。"
         ),
     }
@@ -526,16 +780,15 @@ def main():
 
     print("\n===== 分析完成 =====")
 
-    print(
-        f"公告總數：{len(announcements)}"
-    )
-
-    print(
-        f"候選資料：{len(candidates)}"
-    )
+    print(f"公告總數：{len(announcements)}")
+    print(f"候選資料：{len(candidates)}")
 
     print(
         f"分類統計：{category_statistics}"
+    )
+
+    print(
+        f"日期用途統計：{date_role_statistics}"
     )
 
     print(
