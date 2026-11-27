@@ -5,7 +5,6 @@ import hashlib
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
 
 
 # =====================================
@@ -34,8 +33,7 @@ CATEGORIES = [
 
 
 # =====================================
-# 分類規則
-# 優先判斷公告標題，避免正文關鍵字誤判
+# 標題分類規則
 # =====================================
 
 TITLE_RULES = [
@@ -47,20 +45,6 @@ TITLE_RULES = [
             r"FC限定",
             r"会員限定",
             r"FCイベント",
-        ],
-    ),
-    (
-        "周邊商品及特典",
-        [
-            r"オフィシャルグッズ",
-            r"グッズ販売",
-            r"グッズ",
-            r"購入特典",
-            r"予約特典",
-            r"会場予約特典",
-            r"会場限定特典",
-            r"特典決定",
-            r"Tシャツ",
         ],
     ),
     (
@@ -112,8 +96,8 @@ TITLE_RULES = [
     (
         "音樂作品及發售",
         [
-            r"アルバム",
             r"ベストアルバム",
+            r"アルバム",
             r"シングル",
             r"楽曲配信",
             r"先行配信",
@@ -122,8 +106,21 @@ TITLE_RULES = [
             r"Pre-save",
             r"発売決定",
             r"リリース決定",
-            r"配信リリース",
             r"発売",
+        ],
+    ),
+    (
+        "周邊商品及特典",
+        [
+            r"オフィシャルグッズ",
+            r"グッズ販売",
+            r"グッズ",
+            r"CD購入特典",
+            r"購入特典",
+            r"予約特典",
+            r"会場予約特典",
+            r"会場限定特典",
+            r"特典決定",
         ],
     ),
 ]
@@ -131,7 +128,6 @@ TITLE_RULES = [
 
 # =====================================
 # 正文備用分類規則
-# 僅在標題無法判斷時使用
 # =====================================
 
 CONTENT_RULES = [
@@ -141,16 +137,6 @@ CONTENT_RULES = [
             r"ファンクラブ限定",
             r"FC限定イベント",
             r"会員限定イベント",
-        ],
-    ),
-    (
-        "周邊商品及特典",
-        [
-            r"オフィシャルグッズ",
-            r"購入特典",
-            r"予約特典",
-            r"会場販売",
-            r"特典付き",
         ],
     ),
     (
@@ -195,28 +181,34 @@ CONTENT_RULES = [
             r"配信リリース",
         ],
     ),
+    (
+        "周邊商品及特典",
+        [
+            r"オフィシャルグッズ",
+            r"購入特典",
+            r"予約特典",
+            r"会場販売",
+            r"特典付き",
+        ],
+    ),
 ]
 
 
 # =====================================
 # 日期格式
+# 一次處理完整日期及沒有年份的日期
+# 避免 YYYY年MM月DD日 被重複抓取
 # =====================================
 
-DATE_PATTERNS = [
-    re.compile(
-        r"(?P<year>20\d{2})\s*[./年-]\s*"
-        r"(?P<month>\d{1,2})\s*[./月-]\s*"
-        r"(?P<day>\d{1,2})\s*日?"
-    ),
-    re.compile(
-        r"(?P<month>\d{1,2})月\s*"
-        r"(?P<day>\d{1,2})日"
-    ),
-    re.compile(
-        r"(?P<month>\d{1,2})/"
-        r"(?P<day>\d{1,2})"
-    ),
-]
+DATE_PATTERN = re.compile(
+    r"(?<!\d)"
+    r"(?:(?P<year>20\d{2})\s*[./年-]\s*)?"
+    r"(?P<month>\d{1,2})"
+    r"\s*[./月-]\s*"
+    r"(?P<day>\d{1,2})"
+    r"\s*日?"
+    r"(?!\d)"
+)
 
 
 # =====================================
@@ -224,46 +216,6 @@ DATE_PATTERNS = [
 # =====================================
 
 DATE_ROLE_RULES = [
-    (
-        "活動日期",
-        [
-            "開催日",
-            "開催日時",
-            "公演日",
-            "公演日時",
-            "出演日",
-            "イベント開催",
-            "振替日程",
-            "OPEN",
-            "START",
-            "開始",
-            "開催",
-        ],
-    ),
-    (
-        "音樂作品發售日",
-        [
-            "発売日",
-            "発売",
-            "リリース日",
-            "リリース",
-            "配信スタート",
-            "配信開始",
-            "先行配信",
-        ],
-    ),
-    (
-        "影片或節目公開日",
-        [
-            "プレミア公開",
-            "公開日時",
-            "公開",
-            "放送日",
-            "放送",
-            "配信日時",
-            "配信開始",
-        ],
-    ),
     (
         "報名或預約期間",
         [
@@ -277,7 +229,19 @@ DATE_ROLE_RULES = [
             "受付開始",
             "受付終了",
             "締切",
-            "まで",
+        ],
+    ),
+    (
+        "影片或節目公開日",
+        [
+            "リリックビデオ",
+            "プレミア公開",
+            "YouTube Premiere",
+            "公開日時",
+            "公開日",
+            "公開",
+            "放送日",
+            "放送",
         ],
     ),
     (
@@ -290,6 +254,36 @@ DATE_ROLE_RULES = [
             "予約特典",
             "会場販売",
             "特典",
+            "グッズ販売",
+        ],
+    ),
+    (
+        "音樂作品發售日",
+        [
+            "発売日",
+            "発売",
+            "リリース日",
+            "リリース",
+            "配信スタート",
+            "配信開始",
+            "先行配信",
+            "Pre-add",
+            "Pre-save",
+        ],
+    ),
+    (
+        "活動日期",
+        [
+            "開催日",
+            "開催日時",
+            "公演日",
+            "公演日時",
+            "出演日",
+            "イベント開催",
+            "振替日程",
+            "OPEN",
+            "START",
+            "開催",
         ],
     ),
 ]
@@ -354,7 +348,7 @@ def normalize_url(value):
 
 
 # =====================================
-# 建立公告參考年份
+# 取得公告參考年份
 # =====================================
 
 def get_reference_year(item):
@@ -377,6 +371,38 @@ def get_reference_year(item):
             return int(match.group())
 
     return None
+
+
+# =====================================
+# 從日期附近尋找明確年份
+# =====================================
+
+def find_nearby_year(text, position, reference_year):
+
+    start = max(0, position - 100)
+    end = min(len(text), position + 100)
+
+    context = text[start:end]
+
+    matches = list(
+        re.finditer(r"20\d{2}", context)
+    )
+
+    if matches:
+
+        nearest = min(
+            matches,
+            key=lambda match: abs(
+                (start + match.start()) - position
+            )
+        )
+
+        return int(nearest.group()), False
+
+    if reference_year is not None:
+        return reference_year, True
+
+    return None, True
 
 
 # =====================================
@@ -411,73 +437,80 @@ def extract_dates(text, reference_year=None):
 
     normalized = normalize_text(text)
 
-    for pattern in DATE_PATTERNS:
+    for match in DATE_PATTERN.finditer(normalized):
 
-        for match in pattern.finditer(normalized):
+        year_text = match.group("year")
 
-            year_text = match.groupdict().get("year")
+        month = int(match.group("month"))
+        day = int(match.group("day"))
 
-            month = int(match.group("month"))
-            day = int(match.group("day"))
+        if year_text:
 
-            if year_text:
-                year = int(year_text)
-                inferred = False
+            year = int(year_text)
+            inferred = False
 
-            else:
-                year = reference_year
-                inferred = True
+        else:
 
-            if year is None:
-                continue
-
-            try:
-                date_value = datetime(
-                    year,
-                    month,
-                    day
-                ).date().isoformat()
-
-            except ValueError:
-                continue
-
-            key = (
-                date_value,
-                match.start()
+            year, inferred = find_nearby_year(
+                normalized,
+                match.start(),
+                reference_year
             )
 
-            if key in seen:
-                continue
+        if year is None:
+            continue
 
-            seen.add(key)
+        try:
 
-            start = max(
-                0,
-                match.start() - 100
-            )
+            date_value = datetime(
+                year,
+                month,
+                day
+            ).date().isoformat()
 
-            end = min(
-                len(normalized),
-                match.end() + 100
-            )
+        except ValueError:
+            continue
 
-            context = normalized[start:end].replace(
-                "\n",
-                " "
-            )
+        start = max(
+            0,
+            match.start() - 100
+        )
 
-            results.append({
-                "date": date_value,
-                "originalText": match.group(0),
-                "yearInferred": inferred,
-                "role": identify_date_role(context),
-                "context": context,
-            })
+        end = min(
+            len(normalized),
+            match.end() + 100
+        )
+
+        context = normalized[start:end].replace(
+            "\n",
+            " "
+        )
+
+        role = identify_date_role(context)
+
+        # 相同日期、相同用途只保留一筆
+        key = (
+            date_value,
+            role
+        )
+
+        if key in seen:
+            continue
+
+        seen.add(key)
+
+        results.append({
+            "date": date_value,
+            "originalText": match.group(0),
+            "yearInferred": inferred,
+            "role": role,
+            "context": context,
+        })
 
     results.sort(
         key=lambda item: (
             item["date"],
-            item["originalText"]
+            item["role"]
         )
     )
 
@@ -485,7 +518,7 @@ def extract_dates(text, reference_year=None):
 
 
 # =====================================
-# 分類建議
+# 分類規則比對
 # =====================================
 
 def match_rules(text, rules):
@@ -506,18 +539,43 @@ def match_rules(text, rules):
     return "未分類"
 
 
+# =====================================
+# 分類建議
+# =====================================
+
 def suggest_category(title, content):
 
-    # 第一優先：公告標題
+    normalized_title = normalize_text(title)
+
+    # 先判斷明確的周邊及特典公告
+    explicit_merch_patterns = [
+        r"オフィシャルグッズ",
+        r"グッズ販売",
+        r"会場予約特典",
+        r"会場限定特典",
+        r"CD購入特典",
+        r"購入特典",
+        r"予約特典",
+    ]
+
+    for pattern in explicit_merch_patterns:
+
+        if re.search(
+            pattern,
+            normalized_title,
+            flags=re.IGNORECASE
+        ):
+            return "周邊商品及特典", "標題判斷"
+
+    # T-shirt 等附加特典不應蓋過音樂作品發售
     category = match_rules(
-        title,
+        normalized_title,
         TITLE_RULES
     )
 
     if category != "未分類":
         return category, "標題判斷"
 
-    # 第二優先：正文中的明確活動描述
     category = match_rules(
         content,
         CONTENT_RULES
@@ -533,13 +591,15 @@ def suggest_category(title, content):
 # 建立穩定 ID
 # =====================================
 
-def create_id(url):
+def create_id(value):
 
-    value = hashlib.sha256(
-        url.encode("utf-8")
+    value = str(value or "unknown")
+
+    result = hashlib.sha256(
+        value.encode("utf-8")
     ).hexdigest()[:12]
 
-    return "suggest-" + value
+    return "suggest-" + result
 
 
 # =====================================
@@ -589,8 +649,14 @@ def analyze_announcement(item, events):
 
     reference_year = get_reference_year(item)
 
+    full_text = (
+        str(title)
+        + "\n"
+        + str(content)
+    )
+
     dates = extract_dates(
-        str(title) + "\n" + str(content),
+        full_text,
         reference_year
     )
 
@@ -704,15 +770,22 @@ def main():
 
         for date_item in candidate["dateCandidates"]:
 
+            inferred_mark = (
+                "（推定年份）"
+                if date_item["yearInferred"]
+                else ""
+            )
+
             print(
                 "  "
                 + date_item["date"]
                 + " | "
                 + date_item["role"]
+                + inferred_mark
             )
 
     # =================================
-    # 統計
+    # 分類統計
     # =================================
 
     category_statistics = {}
@@ -725,6 +798,10 @@ def main():
             category_statistics.get(category, 0) + 1
         )
 
+    # =================================
+    # 日期用途統計
+    # =================================
+
     date_role_statistics = {}
 
     for item in candidates:
@@ -736,6 +813,28 @@ def main():
             date_role_statistics[role] = (
                 date_role_statistics.get(role, 0) + 1
             )
+
+    # =================================
+    # 年份推定統計
+    # =================================
+
+    inferred_count = sum(
+        1
+        for item in candidates
+        for date_item in item["dateCandidates"]
+        if date_item["yearInferred"]
+    )
+
+    explicit_count = sum(
+        1
+        for item in candidates
+        for date_item in item["dateCandidates"]
+        if not date_item["yearInferred"]
+    )
+
+    # =================================
+    # 輸出資料
+    # =================================
 
     output = {
         "generatedAt": datetime.now(
@@ -754,12 +853,19 @@ def main():
 
         "dateRoleStatistics": date_role_statistics,
 
+        "dateYearStatistics": {
+            "explicitYear": explicit_count,
+            "inferredYear": inferred_count,
+        },
+
         "candidates": candidates,
 
         "note": (
             "本檔案僅供活動候選資料分析及人工確認。"
-            "日期已依上下文提出用途分類，但仍可能有誤。"
-            "未標示年份的日期使用公告參考年份推定。"
+            "完整日期優先使用公告明確標示的年份。"
+            "未標示年份的日期優先尋找附近明確年份，"
+            "再使用公告參考年份推定。"
+            "相同日期及用途的紀錄只保留一筆。"
             "本程式不會修改 events.json。"
         ),
     }
@@ -789,6 +895,12 @@ def main():
 
     print(
         f"日期用途統計：{date_role_statistics}"
+    )
+
+    print(
+        "年份統計："
+        f"明確年份 {explicit_count} 筆，"
+        f"推定年份 {inferred_count} 筆"
     )
 
     print(
