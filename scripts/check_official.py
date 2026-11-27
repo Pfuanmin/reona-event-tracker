@@ -127,12 +127,9 @@ def main():
                                         )
                                     )
                                 else:
-                                    is_article = (
-                                        parsed.path != "/"
-                                        and len(
-                                            parsed.path.strip("/")
-                                        ) > 3
-                                    )
+                                    # 官方網站文章網址格式尚待確認，
+                                    # 暫時不收集一般介紹及特設網站。
+                                    is_article = False
 
                                 if not is_article:
                                     continue
