@@ -1,0 +1,518 @@
+{
+  "generatedAt": "2026-11-27T05:26:19.580309+00:00",
+  "sourceFile": "site/discovered.json",
+  "existingEventCount": 5,
+  "announcementCount": 10,
+  "candidateCount": 10,
+  "categoryStatistics": {
+    "演唱會及 Live": 9,
+    "公開活動及合作演出": 1
+  },
+  "candidates": [
+    {
+      "id": "suggest-c1a04d94edff",
+      "title": "ReoNa、新曲「あの頃死んでしまわなくてよかった」配信ジャケット＆リリックビデオのプレミア公開決定！",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-02-03",
+          "originalText": "2月3日",
+          "yearInferred": true,
+          "context": "死んでしまわなくてよかった」の配信ジャケットを公開しました。     本楽曲は、2027年2月3日（水）に発売されるReoNa初のベストアルバム【ReoNa ANIME & GAME SO"
+        },
+        {
+          "date": "2026-11-24",
+          "originalText": "11月24日",
+          "yearInferred": true,
+          "context": "新曲で、ベストアルバムの発売に先駆けて先行配信されることが決定しています。     また、11月24日（火）より、先行配信を記念したPre-add／Pre-saveキャンペーンもスタート。 対"
+        },
+        {
+          "date": "2026-12-09",
+          "originalText": "12月9日",
+          "yearInferred": true,
+          "context": "k.to/anokoro/presavepreadd  ※11月24日（火） 20:00～12月9日（水） 23:59     ▼キャンペーン詳細ページ  https://www.sonym"
+        },
+        {
+          "date": "2026-12-10",
+          "originalText": "2026年12月10日",
+          "yearInferred": false,
+          "context": "でしまわなくてよかった」配信ジャケット＆リリックビデオのプレミア公開決定！ ReoNaが、2026年12月10日（木）0時から先行配信する新曲「あの頃死んでしまわなくてよかった」の配信ジャケットを公開し"
+        },
+        {
+          "date": "2026-12-11",
+          "originalText": "2026年12月11日",
+          "yearInferred": false,
+          "context": "eoNa × 傘村トータ「あの頃死んでしまわなくてよかった」-Lyric Video-  2026年12月11日（金）22:00 YouTubeプレミア公開     ▼プレミア公開URL  https:"
+        },
+        {
+          "date": "2027-02-03",
+          "originalText": "2027年2月3日",
+          "yearInferred": false,
+          "context": "曲「あの頃死んでしまわなくてよかった」の配信ジャケットを公開しました。     本楽曲は、2027年2月3日（水）に発売されるReoNa初のベストアルバム【ReoNa ANIME & GAME SO"
+        }
+      ],
+      "publicationDate": "2026.11.23",
+      "sourceTitle": "2026.11.23\nINFO\nN E W\nReoNa、新曲「あの頃死んでしまわなくてよかった」配信ジャケット＆リリックビデオのプレミア公開決定！",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/588829",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "ReoNaが、2026年12月10日（木）0時から先行配信する新曲「あの頃死んでしまわなくてよかった」の配信ジャケットを公開しました。\n\n \n\n本楽曲は、2027年2月3日（水）に発売されるReoNa初のベストアルバム【ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー -赤-』『ハロー、アンハッピー -青-』】の青盤に収録される新曲。作詞・作曲・編曲は傘村トータ（LIVE LAB.）が手掛けており、現在開催中の「ReoNa Concert Tour 2026 “De:TOUR -静脈-”」でも披露されている話題の新曲で、ベストアルバムの発売に先駆けて先行配信されることが決定しています。\n\n \n\nまた、11月24日（火）より、先行配信を記念したPre-add／Pre-saveキャンペーンもスタート。\n対象の音楽配信サービスで「あの頃死んでしまわなくてよかった」を事前追加することで参加できるキャンペーンとなっており、詳細は下記URLより確認できます。\n\n\n\n▼「あの頃死んでしまわなくてよかった」Pre-add／Pre-saveキャンペーン\n\nht",
+      "links": [
+        {
+          "text": "https://ReoNa.lnk.to/anokoro/presavepreadd",
+          "url": "https://reona.lnk.to/anokoro/presavepreadd"
+        },
+        {
+          "text": "https://www.sonymusic.co.jp/artist/ReoNa/info/588817",
+          "url": "https://www.sonymusic.co.jp/artist/ReoNa/info/588817"
+        },
+        {
+          "text": "https://youtu.be/4slia7mU1FU",
+          "url": "https://youtu.be/4slia7mU1FU"
+        }
+      ]
+    },
+    {
+      "id": "suggest-cc341afa6319",
+      "title": "ReoNa「あの頃死んでしまわなくてよかった」Pre-add / Pre-saveキャンペーン決定！！",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-11-24",
+          "originalText": "2026/11/24",
+          "yearInferred": false,
+          "context": "曲配信日にご自身のライブラリにアルバムの楽曲が追加されます。       【対象期間】  2026/11/24(火)20:00～2026/12/9 (水)23:59まで     【参加方法】  ①下記"
+        },
+        {
+          "date": "2026-12-09",
+          "originalText": "2026/12/9 ",
+          "yearInferred": false,
+          "context": "の楽曲が追加されます。       【対象期間】  2026/11/24(火)20:00～2026/12/9 (水)23:59まで     【参加方法】  ①下記ページから手順に従ってApple Mu"
+        }
+      ],
+      "publicationDate": "2026.11.23",
+      "sourceTitle": "2026.11.23\nINFO\nN E W\nReoNa「あの頃死んでしまわなくてよかった」Pre-add / Pre-saveキャンペーン決定！！",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/588817",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "キャンペーン対象期間内に「あの頃死んでしまわなくてよかった」をApple Musicの “Pre-add”、Spotifyの “Pre-save”にて事前登録された方全員に【ジャケ写待受け画像】をプレゼント！\n\n※事前登録頂くと、楽曲配信日にご自身のライブラリにアルバムの楽曲が追加されます。\n\n\n\n\n\n\n【対象期間】\n\n2026/11/24(火)20:00～2026/12/9 (水)23:59まで\n\n \n\n【参加方法】\n\n①下記ページから手順に従ってApple MusicあるいはSpotifyにてアルバムを Pre-Add/Pre-Save(事前登録)\n\nhttps://ReoNa.lnk.to/anokoro/presavepreadd\n\n \n\n② Apple Music をご利用の方は「Pre-add on Apple Music」、Spotify をご利用の方は「Pre-save on Spotify」をタップ。\n\n③事前登録完了！\n\n \n\n※Pre-add/Pre-saveとは？\n\nApple MusicのPre-Add（プリアド）、SpotifyのPre-Save（プリセーブ",
+      "links": [
+        {
+          "text": "https://ReoNa.lnk.to/anokoro/presavepreadd",
+          "url": "https://reona.lnk.to/anokoro/presavepreadd"
+        }
+      ]
+    },
+    {
+      "id": "suggest-abd29e9eaf94",
+      "title": "ReoNa 12thシングル『Amore』発売記念リリースイベント 【振替日程のご案内】",
+      "categorySuggestion": "公開活動及合作演出",
+      "dateCandidates": [
+        {
+          "date": "2026-09-21",
+          "originalText": "2026年9月21日",
+          "yearInferred": false,
+          "context": "ましては、下記をご確認のうえご参加お待ちしております。     ＜振替対象イベント＞  ★2026年9月21日（月・祝）  16:00開始 ＠ 東京都・都内某所     ＜振替日程＞ ★2026年12"
+        },
+        {
+          "date": "2026-11-19",
+          "originalText": "11月19日",
+          "yearInferred": true,
+          "context": "いただいたメールアドレス宛に別途メールにてご連絡をさせていただきます。  ご当選のお客様で11月19日（木）までにメールが届いていないお客様につきましては、大変恐縮ですが下記宛先までご連絡をお"
+        },
+        {
+          "date": "2026-12-20",
+          "originalText": "2026年12月20日",
+          "yearInferred": false,
+          "context": "6年9月21日（月・祝）  16:00開始 ＠ 東京都・都内某所     ＜振替日程＞ ★2026年12月20日（日） 16:00開始 ＠ 東京都・都内某所     ご当選のお客様につきましては、お申し"
+        }
+      ],
+      "publicationDate": "2026.11.12",
+      "sourceTitle": "2026.11.12\nINFO\nReoNa 12thシングル『Amore』発売記念リリースイベント 【振替日程のご案内】",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/588439",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "台風第25号の接近により、開催の延期を発表しておりました9月21日(月・祝日)の「ReoNa 12thシングル『Amore』発売記念リリースイベント」ですが、振替日程が決定いたしました。\n\nご当選者様につきましては、下記をご確認のうえご参加お待ちしております。\n\n \n\n＜振替対象イベント＞\n\n★2026年9月21日（月・祝）\n\n16:00開始 ＠ 東京都・都内某所\n\n \n\n＜振替日程＞\n★2026年12月20日（日）\n16:00開始 ＠ 東京都・都内某所\n\n \n\nご当選のお客様につきましては、お申し込みの際にご入力いただいたメールアドレス宛に別途メールにてご連絡をさせていただきます。\n\nご当選のお客様で11月19日（木）までにメールが届いていないお客様につきましては、大変恐縮ですが下記宛先までご連絡をお願いいたします。\n\n \n\n＜お問い合わせ先＞ \n\nWonderGOO/新星堂カスタマーセンター \n\nhttps://www.rext.jp/contact \n\n※店舗へのお問合せはご遠慮ください。 \n\n \n\nなお、本イベントの日程変更におけるキャンセル・返金・返品等の対応はできかねます。",
+      "links": [
+        {
+          "text": "https://www.rext.jp/contact",
+          "url": "https://www.rext.jp/contact"
+        }
+      ]
+    },
+    {
+      "id": "suggest-bbf04c9a5007",
+      "title": "ReoNa 新曲「Wake Me Up」本日11月2日（月）配信リリース！",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-02-03",
+          "originalText": "2月3日",
+          "yearInferred": true,
+          "context": "ンライン オルタナティブ ガンゲイル・オンライン』の搭載楽曲。     さらに、2027年2月3日（水）発売のReoNa初のベストアルバム、ReoNa ANIME & GAME SONG "
+        },
+        {
+          "date": "2026-11-02",
+          "originalText": "2026年11月2日",
+          "yearInferred": false,
+          "context": "nk.to/WakeMeUp     ■楽曲情報  ReoNa「Wake Me Up」  2026年11月2日（月）配信リリース  作詞：ハヤシケイ（LIVE LAB.）  作曲：毛蟹（LIVE LA"
+        },
+        {
+          "date": "2027-02-03",
+          "originalText": "2027年2月3日",
+          "yearInferred": false,
+          "context": "アート・オンライン オルタナティブ ガンゲイル・オンライン』の搭載楽曲。     さらに、2027年2月3日（水）発売のReoNa初のベストアルバム、ReoNa ANIME & GAME SONG "
+        }
+      ],
+      "publicationDate": "2026.11.02",
+      "sourceTitle": "2026.11.02\nINFO\nReoNa 新曲「Wake Me Up」本日11月2日（月）配信リリース！",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/588200",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "ReoNaの新曲「Wake Me Up」が、本日11月2日（月）より各音楽配信サービスにて配信スタート！\n\n本楽曲は、本日より全国導入が開始される『パチスロ ソードアート・オンライン オルタナティブ ガンゲイル・オンライン』の搭載楽曲。\n\n \n\nさらに、2027年2月3日（水）発売のReoNa初のベストアルバム、ReoNa ANIME & GAME SONG BEST ALBUM『ハロー、アンハッピー -青-』にも収録されることが決定しています。\n\n\n▼各音楽配信サービスはこちら\n\nhttps://ReoNa.lnk.to/WakeMeUp\n\n \n\n■楽曲情報\n\nReoNa「Wake Me Up」\n\n2026年11月2日（月）配信リリース\n\n作詞：ハヤシケイ（LIVE LAB.）\n\n作曲：毛蟹（LIVE LAB.）\n\n編曲：荒幡亮平",
+      "links": [
+        {
+          "text": "https://ReoNa.lnk.to/WakeMeUp",
+          "url": "https://ReoNa.lnk.to/WakeMeUp"
+        }
+      ]
+    },
+    {
+      "id": "suggest-2ca270a5a4ea",
+      "title": "ReoNa、初のベストアルバム収録の新曲「あの頃死んでしまわなくてよかった」が12月10日先行配信決定！ コンプリートBOX封入特典「オリジナルビッグTシャツ」の絵柄も公開！",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-02-03",
+          "originalText": "2月3日",
+          "yearInferred": true,
+          "context": "リジナルビッグTシャツ」の絵柄も公開！ “絶望系アニソンシンガー”ReoNaが、2027年2月3日（水）にリリースする自身初のベストアルバム、ReoNa ANIME & GAME SONG"
+        },
+        {
+          "date": "2026-10-28",
+          "originalText": "10月28日",
+          "yearInferred": true,
+          "context": "ィスト：ReoNa  作詞・作曲・編曲：傘村トータ （LIVE LAB.）     また、10月28日（水）21:00に、ReoNa official YouTube channelにて、初の"
+        },
+        {
+          "date": "2026-12-10",
+          "originalText": "2026年12月10日",
+          "yearInferred": false,
+          "context": "M『ハロー、アンハッピー -青-』に収録される新曲「あの頃死んでしまわなくてよかった」を、2026年12月10日（木）0:00より各音楽配信サービスにて先行配信することが決定した。     ReoNa "
+        },
+        {
+          "date": "2027-02-03",
+          "originalText": "2027年2月3日",
+          "yearInferred": false,
+          "context": "入特典「オリジナルビッグTシャツ」の絵柄も公開！ “絶望系アニソンシンガー”ReoNaが、2027年2月3日（水）にリリースする自身初のベストアルバム、ReoNa ANIME & GAME SONG"
+        }
+      ],
+      "publicationDate": "2026.10.29",
+      "sourceTitle": "2026.10.29\nINFO\nReoNa、初のベストアルバム収録の新曲「あの頃死んでしまわなくてよかった」が12月10日先行配信決定！ コンプリートBOX封入特典「オリジナルビッグTシャツ」の絵柄も公開！",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/588086",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "“絶望系アニソンシンガー”ReoNaが、2027年2月3日（水）にリリースする自身初のベストアルバム、ReoNa ANIME & GAME SONG BEST ALBUM『ハロー、アンハッピー -青-』に収録される新曲「あの頃死んでしまわなくてよかった」を、2026年12月10日（木）0:00より各音楽配信サービスにて先行配信することが決定した。\n\n \n\nReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー -赤-』『ハロー、アンハッピー -青-』は、2018年8月にソロデビューして以降担当したアニメのOP、EDテーマをはじめ、ゲームのテーマソング、挿入歌、作品イベントのテーマソングなどを網羅した内容となっている『ハロー、アンハッピー -赤-』『ハロー、アンハッピー -青-』の2タイトルで構成され、コンプリートBOXを含む全5形態でリリースされる。\n\n \n\n今回先行配信が決定した「あの頃死んでしまわなくてよかった」は、『ハロー、アンハッピー -青-』に収録される新曲。2027年2月3日（水）のベストアルバム発売に先駆け、12月10日（木）0:00",
+      "links": [
+        {
+          "text": "https://youtu.be/g6bW7b3L1Q0",
+          "url": "https://youtu.be/g6bW7b3L1Q0"
+        }
+      ]
+    },
+    {
+      "id": "suggest-618a3627fc12",
+      "title": "「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」開催記念、ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』会場予約特典決定。",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-02-03",
+          "originalText": "2月3日",
+          "yearInferred": true,
+          "context": "約期間：～2026年10月4日（日） 12:59まで     ＜対象商品＞  ■2027年2月3日（水）発売ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、"
+        },
+        {
+          "date": "2026-10-04",
+          "originalText": "2026年10月4日",
+          "yearInferred": false,
+          "context": " Music Shopの通常カートには付与されませんのでご注意ください。  ご予約期間：～2026年10月4日（日） 12:59まで     ＜対象商品＞  ■2027年2月3日（水）発売ReoNa "
+        },
+        {
+          "date": "2027-02-03",
+          "originalText": "2027年2月3日",
+          "yearInferred": false,
+          "context": "。  ご予約期間：～2026年10月4日（日） 12:59まで     ＜対象商品＞  ■2027年2月3日（水）発売ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、"
+        }
+      ],
+      "publicationDate": "2026.10.03",
+      "sourceTitle": "2026.10.03\nINFO\n「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」開催記念、ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』会場予約特典決定。",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/587340",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "10/3(土)より開催される、「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」の開催を記念して、各会場のCDブースにてReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』会場予約特典が決定しました。\n\n以下の参加方法をご確認の上、ぜひご参加ください。\n\n \n\n2/3発売 ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』ご予約特典\n\n10/3（土）より開催される、「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」の会場にて、\n\nReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』(5形態いずれか)をご予約された方に、それぞれ形態別絵柄の会場予約特典をプレゼントいたします！\n\n会場限定の特典となりますので、是非チェックしてください！\n\n※10/3（土）浦安市文化会館 大ホールにご来場いただいたお客様には、終演後に配布のBEST ALBUMのフライヤーに掲載のQRコードからSony Music Shop",
+      "links": []
+    },
+    {
+      "id": "suggest-f57b0de8b116",
+      "title": "ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』が2027年2月3日（水）に発売決定！",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2023-07-03",
+          "originalText": "2023/07/03",
+          "yearInferred": false,
+          "context": "cert Tour 2023 \"HUMAN\" at LINE CUBE SHIBUYA　(2023/07/03)』  【封入特典】  フォトブック(※各形態ごと別絵柄)  ライナーノーツ  トレーディ"
+        },
+        {
+          "date": "2025-12-22",
+          "originalText": "2025/12/22",
+          "yearInferred": false,
+          "context": "N Concert Tour 2025 \"HEART\" at 昭和女子大学人見記念講堂　(2025/12/22)』  【封入特典】  フォトブック(※各形態ごと別絵柄)  ライナーノーツ  トレーディ"
+        },
+        {
+          "date": "2026-02-03",
+          "originalText": "2月3日",
+          "yearInferred": true,
+          "context": "IME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』が2027年2月3日（水）に発売決定！ ReoNa ANIME & GAME SONG BEST ALBUM "
+        },
+        {
+          "date": "2026-10-03",
+          "originalText": "2026年10月3日",
+          "yearInferred": false,
+          "context": "s://reona.lnk.to/BESTALBUM_pre     ▼ご予約対象期間  2026年10月3日(土) 19:30 ～ 2026年12月10日(木) 23:59     ※対象店舗以外で"
+        },
+        {
+          "date": "2026-12-10",
+          "originalText": "2026年12月10日",
+          "yearInferred": false,
+          "context": "LBUM_pre     ▼ご予約対象期間  2026年10月3日(土) 19:30 ～ 2026年12月10日(木) 23:59     ※対象店舗以外での配布はございません。予めご了承ください。  "
+        },
+        {
+          "date": "2027-02-03",
+          "originalText": "2027年2月3日",
+          "yearInferred": false,
+          "context": "Na ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』が2027年2月3日（水）に発売決定！ ReoNa ANIME & GAME SONG BEST ALBUM "
+        }
+      ],
+      "publicationDate": "2026.10.03",
+      "sourceTitle": "2026.10.03\nRELEASE\nReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』が2027年2月3日（水）に発売決定！",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/587338",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』が２/３(水)に決定。\n\n \n\n【ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』商品情報】\n\n\n■タイトル：ReoNa ANIME & GAME SONG BEST ALBUM 『ハロー、アンハッピー』\n\n■発売日：2027年２月3日（水）\n\n■CDの予約はこちら\n\nhttps://reona.lnk.to/BESTALBUM\n■発売記念特設サイトはこちら\nhttps://www.reona-reona.com/BEST/\n \n\n▼ReoNa ANIME & GAME SONG BEST ALBUMコンプリートBOX『ハロー、アンハッピー - 赤・青 -』\n\n品番：VVCL 3080～3083\n\n価格：18,000円(税抜) / 19,800円(税込)\n\n \n\n＜収録内容＞\n\nCD 1：アニメ＆ゲームソングベスト14曲＋新曲(-赤-)\n\nCD 2：アニメ＆ゲームソングベスト15曲＋新曲(-青-)\n\nBlu-ray Disc：LIVE & DOCU",
+      "links": [
+        {
+          "text": "https://reona.lnk.to/BESTALBUM",
+          "url": "https://reona.lnk.to/BESTALBUM"
+        },
+        {
+          "text": "https://www.reona-reona.com/BEST/",
+          "url": "https://www.reona-reona.com/BEST/"
+        },
+        {
+          "text": "https://reona.lnk.to/BESTALBUM_pre",
+          "url": "https://reona.lnk.to/BESTALBUM_pre"
+        }
+      ]
+    },
+    {
+      "id": "suggest-c782778261b1",
+      "title": "Information「ReoNa Concert Tour 2026 De:TOUR-静脈-」",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-07-22",
+          "originalText": "2026年7月22日",
+          "yearInferred": false,
+          "context": "！  会場限定の特典となりますので、是非チェックしてください！     ＜対象商品＞  ■2026年7月22日（水）発売 ReoNa 「Amore」  ・初回生産限定盤[CD+BD] VVCL-294"
+        },
+        {
+          "date": "2026-08-26",
+          "originalText": "2026年8月26日",
+          "yearInferred": false,
+          "context": "期間生産限定盤[CD＋BD] VVCL-2951~2952　税込￥2,200      ■2026年8月26日（水）発売 ReoNa 「Lv.1 職業：人間」  ・初回生産限定盤[CD+BD] VVC"
+        },
+        {
+          "date": "2026-10-03",
+          "originalText": "2026年10月3日",
+          "yearInferred": false,
+          "context": "ona/     ーーー     【会場販売グッズ】      【各会場先行販売時間】  2026年10月3日(土) 浦安市文化会館 大ホール(千葉)  13:00～16:30  2026年10月4日"
+        },
+        {
+          "date": "2026-10-04",
+          "originalText": "2026年10月4日",
+          "yearInferred": false,
+          "context": "2026年10月3日(土) 浦安市文化会館 大ホール(千葉)  13:00～16:30  2026年10月4日(日) 浦安市文化会館 大ホール(千葉)  13:00～15:30  2026年10月20"
+        },
+        {
+          "date": "2026-10-20",
+          "originalText": "2026年10月20日",
+          "yearInferred": false,
+          "context": "2026年10月4日(日) 浦安市文化会館 大ホール(千葉)  13:00～15:30  2026年10月20日(火) 福岡国際会議場(福岡)  14:00～17:30  2026年10月24日(土) "
+        },
+        {
+          "date": "2026-10-24",
+          "originalText": "2026年10月24日",
+          "yearInferred": false,
+          "context": "30  2026年10月20日(火) 福岡国際会議場(福岡)  14:00～17:30  2026年10月24日(土) 神戸国際会館(兵庫)  13:00～16:30  2026年10月29日(木) L"
+        },
+        {
+          "date": "2026-10-29",
+          "originalText": "2026年10月29日",
+          "yearInferred": false,
+          "context": ":30  2026年10月24日(土) 神戸国際会館(兵庫)  13:00～16:30  2026年10月29日(木) LINE CUBE SHIBUYA OPEN(東京)  13:00～17:00  "
+        },
+        {
+          "date": "2026-11-23",
+          "originalText": "2026年11月23日",
+          "yearInferred": false,
+          "context": "(木) LINE CUBE SHIBUYA OPEN(東京)  13:00～17:00  2026年11月23日(月・祝) トークネットホール仙台（仙台市民会館）大ホール(宮城)  14:00～16:3"
+        },
+        {
+          "date": "2026-12-05",
+          "originalText": "2026年12月5日",
+          "yearInferred": false,
+          "context": "祝) トークネットホール仙台（仙台市民会館）大ホール(宮城)  14:00～16:30  2026年12月5日(土) Niterra日本特殊陶業市民会館 フォレストホール(愛知)  14:00～16:"
+        },
+        {
+          "date": "2026-12-10",
+          "originalText": "2026年12月10日",
+          "yearInferred": false,
+          "context": "Niterra日本特殊陶業市民会館 フォレストホール(愛知)  14:00～16:30  2026年12月10日(木) 札幌市教育文化会館 大ホール(北海道)  15:00～17:30         "
+        }
+      ],
+      "publicationDate": "2026.10.02",
+      "sourceTitle": "2026.10.02\nLIVE\nInformation「ReoNa Concert Tour 2026 De:TOUR-静脈-」",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/587352",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [
+        "reona-detour-veins-20261205",
+        "reona-detour-veins-20261210"
+      ],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "全国７都市８公演を巡るコンサートホールツアー「ReoNa Concert Tour 2026 De:TOUR-静脈-」\n\n\n\n\n【千葉公演】→ SOLD OUT\n\n10/3(土) 浦安市文化会館 大ホール \n\nOPEN 17:00 / START 18:00\n\n\n\n\n【千葉公演】→ SOLD OUT\n\n10/4(日) 浦安市文化会館 大ホール \n\nOPEN 16:00 / START 17:00\n\n\n\n\n【福岡公演】\n\n10/20(火) 福岡国際会議場 \n\nOPEN 18:00 / START 19:00\n\n\n\n\n【兵庫公演】\n\n10/24(土) 神戸国際会館 \n\nOPEN 17:00 / START 18:00\n\n\n\n\n【東京公演】→ SOLD OUT\n\n10/29(木) LINE CUBE SHIBUYA \n\nOPEN 17:30 / START 18:30\n\n\n\n\n【宮城公演】\n\n11/23 (月・祝) トークネットホール仙台（仙台市民会館）大ホール \n\nOPEN 17:00 / START 18:00\n\n\n\n\n【愛知公演】\n\n12/5(土) Nittera日本特殊陶業市民会館 ",
+      "links": [
+        {
+          "text": "http://w.pia.jp/t/reona/",
+          "url": "http://w.pia.jp/t/reona/"
+        },
+        {
+          "text": "https://www.sonymusicshop.jp/goods/ReoNa/",
+          "url": "https://www.sonymusicshop.jp/goods/ReoNa/"
+        },
+        {
+          "text": "https://www.sonymusic.co.jp/artist/ReoNa/info/587228",
+          "url": "https://www.sonymusic.co.jp/artist/ReoNa/info/587228"
+        }
+      ]
+    },
+    {
+      "id": "suggest-c01ee37b657e",
+      "title": "「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」開催記念、CD購入特典＆購入抽選会決定。",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-07-22",
+          "originalText": "2026年7月22日",
+          "yearInferred": false,
+          "context": "！  会場限定の特典となりますので、是非チェックしてください！     ＜対象商品＞  ■2026年7月22日（水）発売 ReoNa 「Amore」  ・初回生産限定盤[CD+BD] VVCL-294"
+        },
+        {
+          "date": "2026-08-26",
+          "originalText": "2026年8月26日",
+          "yearInferred": false,
+          "context": "・期間生産限定盤[CD＋BD] VVCL-2951~2952　税込￥2,200     ■2026年8月26日（水）発売 ReoNa 「Lv.1 職業：人間」  ・初回生産限定盤[CD+BD] VVC"
+        }
+      ],
+      "publicationDate": "2026.10.01",
+      "sourceTitle": "2026.10.01\nINFO\n「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」開催記念、CD購入特典＆購入抽選会決定。",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/587228",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "10/3(土)より開催される、「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」の開催を記念して、各会場のCDブースにてCD購入特典＆購入抽選会が決定しました。\n\n以下の参加方法をご確認の上、ぜひご参加ください。\n\n \n\n1.7/22発売 「Amore」、8/26発売「Lv.1 職業：人間」ご購入特典\n\n10/3（土）より開催される、「ReoNa Concert Tour 2026 “De:TOUR -静脈-“」の会場にて、\n\n「Amore」(3形態いずれか)、「Lv.1 職業：人間」(3形態いずれか)をご購入された方に、それぞれ会場購入特典をプレゼントいたします！\n\n会場限定の特典となりますので、是非チェックしてください！\n\n \n\n＜対象商品＞\n\n■2026年7月22日（水）発売 ReoNa 「Amore」\n\n・初回生産限定盤[CD+BD] VVCL-2948〜2949 税込￥2,640\n\n・初回仕様限定盤[CD] VVCL-2950 税込￥1,650\n\n・期間生産限定盤[CD＋BD] VVCL-2951~2952　税込￥2,200\n\n \n\n■2026年",
+      "links": []
+    },
+    {
+      "id": "suggest-a99c97cdda74",
+      "title": "「ReoNa Concert Tour 2026 “De:TOUR -静脈-”」オフィシャルグッズ会場販売のお知らせ",
+      "categorySuggestion": "演唱會及 Live",
+      "dateCandidates": [
+        {
+          "date": "2026-10-03",
+          "originalText": "2026年10月3日",
+          "yearInferred": false,
+          "context": " Tour 2026 “De:TOUR -静脈-”」オフィシャルグッズ会場販売のお知らせ 2026年10月3日(土)より開催される、「ReoNa Concert Tour 2026 “De:TOUR "
+        },
+        {
+          "date": "2026-10-04",
+          "originalText": "2026年10月4日",
+          "yearInferred": false,
+          "context": "2026年10月3日(土) 浦安市文化会館 大ホール(千葉)  13:00～16:30  2026年10月4日(日) 浦安市文化会館 大ホール(千葉)  13:00～15:30  2026年10月20"
+        },
+        {
+          "date": "2026-10-20",
+          "originalText": "2026年10月20日",
+          "yearInferred": false,
+          "context": "2026年10月4日(日) 浦安市文化会館 大ホール(千葉)  13:00～15:30  2026年10月20日(火) 福岡国際会議場(福岡)  14:00～17:30  2026年10月24日(土) "
+        },
+        {
+          "date": "2026-10-24",
+          "originalText": "2026年10月24日",
+          "yearInferred": false,
+          "context": "30  2026年10月20日(火) 福岡国際会議場(福岡)  14:00～17:30  2026年10月24日(土) 神戸国際会館(兵庫)  13:00～16:30  2026年10月29日(木) L"
+        },
+        {
+          "date": "2026-10-29",
+          "originalText": "2026年10月29日",
+          "yearInferred": false,
+          "context": ":30  2026年10月24日(土) 神戸国際会館(兵庫)  13:00～16:30  2026年10月29日(木) LINE CUBE SHIBUYA OPEN(東京)  13:00～17:00  "
+        },
+        {
+          "date": "2026-11-23",
+          "originalText": "2026年11月23日",
+          "yearInferred": false,
+          "context": "(木) LINE CUBE SHIBUYA OPEN(東京)  13:00～17:00  2026年11月23日(月・祝) トークネットホール仙台（仙台市民会館）大ホール(宮城)  14:00～16:3"
+        },
+        {
+          "date": "2026-12-05",
+          "originalText": "2026年12月5日",
+          "yearInferred": false,
+          "context": "祝) トークネットホール仙台（仙台市民会館）大ホール(宮城)  14:00～16:30  2026年12月5日(土) Niterra日本特殊陶業市民会館 フォレストホール(愛知)  14:00～16:"
+        },
+        {
+          "date": "2026-12-10",
+          "originalText": "2026年12月10日",
+          "yearInferred": false,
+          "context": "Niterra日本特殊陶業市民会館 フォレストホール(愛知)  14:00～16:30  2026年12月10日(木) 札幌市教育文化会館 大ホール(北海道)  15:00～17:30     ※当日の"
+        }
+      ],
+      "publicationDate": "2026.09.23",
+      "sourceTitle": "2026.09.23\nINFO\n「ReoNa Concert Tour 2026 “De:TOUR -静脈-”」オフィシャルグッズ会場販売のお知らせ",
+      "sourceUrl": "https://www.sonymusic.co.jp/artist/ReoNa/info/587051",
+      "source": "Sony Music",
+      "contentStatus": "success",
+      "existingEventMatches": [],
+      "reviewStatus": "待人工確認",
+      "contentPreview": "2026年10月3日(土)より開催される、「ReoNa Concert Tour 2026 “De:TOUR -静脈-”」のグッズ会場販売の詳細情報をお知らせいたします。\n\nぜひご利用ください。\n\n \n\n \n\n \n\n【各会場先行販売時間】\n\n2026年10月3日(土) 浦安市文化会館 大ホール(千葉)\n\n13:00～16:30\n\n2026年10月4日(日) 浦安市文化会館 大ホール(千葉)\n\n13:00～15:30\n\n2026年10月20日(火) 福岡国際会議場(福岡)\n\n14:00～17:30\n\n2026年10月24日(土) 神戸国際会館(兵庫)\n\n13:00～16:30\n\n2026年10月29日(木) LINE CUBE SHIBUYA OPEN(東京)\n\n13:00～17:00\n\n2026年11月23日(月・祝) トークネットホール仙台（仙台市民会館）大ホール(宮城)\n\n14:00～16:30\n\n2026年12月5日(土) Niterra日本特殊陶業市民会館 フォレストホール(愛知)\n\n14:00～16:30\n\n2026年12月10日(木) 札幌市教育文化会館 大ホール(北海道)",
+      "links": []
+    }
+  ],
+  "note": "本檔案僅供活動候選資料分析及人工確認。日期可能包含公告日期、預約期限及其他日期，不可直接視為活動日期。本程式不會修改 events.json。"
+}
