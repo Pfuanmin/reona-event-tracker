@@ -2,6 +2,7 @@
 import json
 import re
 import hashlib
+import html
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,22 +19,6 @@ OUTPUT_FILE = Path("site/suggested_events.json")
 
 # =====================================
 # 活動分類
-# =====================================
-
-CATEGORIES = [
-    "演唱會及 Live",
-    "粉絲俱樂部活動",
-    "公開活動及合作演出",
-    "電視、廣播及網路節目",
-    "音樂作品及發售",
-    "周邊商品及特典",
-    "線上直播及配信",
-    "未分類",
-]
-
-
-# =====================================
-# 標題分類規則
 # =====================================
 
 TITLE_RULES = [
@@ -126,10 +111,6 @@ TITLE_RULES = [
 ]
 
 
-# =====================================
-# 正文備用分類規則
-# =====================================
-
 CONTENT_RULES = [
     (
         "粉絲俱樂部活動",
@@ -210,34 +191,63 @@ DATE_PATTERN = re.compile(
 
 
 # =====================================
-# 日期用途判斷
+# 日期用途關鍵字
 # =====================================
 
 DATE_ROLE_RULES = [
     (
         "報名或預約期間",
         [
-            "受付期間",
+            "キャンペーン期間",
+            "キャンペーン実施期間",
             "応募期間",
+            "受付期間",
             "予約期間",
-            "対象期間",
             "申込期間",
-            "エントリー",
+            "エントリー期間",
+            "実施期間",
             "応募締切",
             "受付開始",
             "受付終了",
+            "申込締切",
             "締切",
+            "応募",
+            "予約受付",
+            "Pre-add",
+            "Pre-save",
+        ],
+    ),
+    (
+        "活動日期",
+        [
+            "リリースイベント",
+            "振替イベント",
+            "振替日程",
+            "振替公演",
+            "開催日",
+            "開催日時",
+            "開催予定",
+            "公演日",
+            "公演日時",
+            "出演日",
+            "イベント開催",
+            "イベント実施",
+            "開催",
+            "OPEN",
+            "START",
         ],
     ),
     (
         "影片或節目公開日",
         [
             "リリックビデオ",
+            "Lyric Video",
             "プレミア公開",
             "YouTube Premiere",
             "公開日時",
             "公開日",
-            "公開",
+            "動画公開",
+            "映像公開",
             "放送日",
             "放送",
         ],
@@ -248,11 +258,14 @@ DATE_ROLE_RULES = [
             "販売期間",
             "販売開始",
             "販売時間",
+            "販売日",
             "購入特典",
             "予約特典",
             "会場販売",
             "特典",
             "グッズ販売",
+            "CD販売",
+            "販売",
         ],
     ),
     (
@@ -265,23 +278,9 @@ DATE_ROLE_RULES = [
             "配信スタート",
             "配信開始",
             "先行配信",
+            "楽曲配信",
             "Pre-add",
             "Pre-save",
-        ],
-    ),
-    (
-        "活動日期",
-        [
-            "開催日",
-            "開催日時",
-            "公演日",
-            "公演日時",
-            "出演日",
-            "イベント開催",
-            "振替日程",
-            "OPEN",
-            "START",
-            "開催",
         ],
     ),
 ]
@@ -309,7 +308,7 @@ def read_json(path, default):
 
 
 # =====================================
-# 清理文字
+# 文字標準化
 # =====================================
 
 def normalize_text(value):
@@ -321,6 +320,61 @@ def normalize_text(value):
         "NFKC",
         str(value)
     )
+
+
+# =====================================
+# HTML 轉換成文字
+# =====================================
+
+def clean_html(value):
+
+    if not value:
+        return ""
+
+    text = str(value)
+
+    # 將區塊標籤轉成換行
+    text = re.sub(
+        r"<\s*(?:br|/p|/div|/li|/tr|/h[1-6]|/section|/article)\b[^>]*>",
+        "\n",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r"<\s*(?:p|div|li|tr|h[1-6]|section|article)\b[^>]*>",
+        "\n",
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # 移除剩餘 HTML 標籤
+    text = re.sub(
+        r"<[^>]+>",
+        " ",
+        text
+    )
+
+    # 解碼 HTML entities
+    text = html.unescape(text)
+
+    # 統一文字格式
+    text = normalize_text(text)
+
+    # 清理空白
+    text = re.sub(
+        r"[ \t]+",
+        " ",
+        text
+    )
+
+    text = re.sub(
+        r"\n\s*\n+",
+        "\n",
+        text
+    )
+
+    return text.strip()
 
 
 # =====================================
@@ -372,26 +426,46 @@ def get_reference_year(item):
 
 
 # =====================================
-# 取得日期所在句子
-# 不再使用前後 100 字元
+# 分割公告段落
 # =====================================
 
-def get_date_sentence(text, start, end):
+def split_blocks(text):
 
-    boundaries = "。！？!?；;\n\r"
+    blocks = []
 
-    left = start
-    right = end
+    for line in text.splitlines():
 
-    while left > 0 and text[left - 1] not in boundaries:
-        left -= 1
+        line = line.strip()
 
-    while right < len(text) and text[right] not in boundaries:
-        right += 1
+        if not line:
+            continue
 
-    sentence = text[left:right].strip()
+        # 再依日文句號等標點切分
+        sentences = re.split(
+            r"(?<=[。！？!?；;])",
+            line
+        )
 
-    return sentence
+        for sentence in sentences:
+
+            sentence = sentence.strip()
+
+            if sentence:
+                blocks.append(sentence)
+
+    return blocks
+
+
+# =====================================
+# 找出日期上下文
+# =====================================
+
+def get_date_context(blocks, date_index):
+
+    current = blocks[date_index]
+
+    # 優先使用日期所在句子
+    return current
 
 
 # =====================================
@@ -406,10 +480,34 @@ def identify_date_role(context):
 
         for keyword in keywords:
 
-            if keyword in text:
+            if keyword.lower() in text.lower():
                 return role
 
     return "用途待確認"
+
+
+# =====================================
+# 日期狀態判斷
+# =====================================
+
+def identify_date_status(date_value):
+
+    event_date = datetime.strptime(
+        date_value,
+        "%Y-%m-%d"
+    ).date()
+
+    today = datetime.now(
+        timezone.utc
+    ).date()
+
+    if event_date < today:
+        return "已過期"
+
+    if event_date == today:
+        return "今天"
+
+    return "未來"
 
 
 # =====================================
@@ -424,68 +522,74 @@ def extract_dates(text, reference_year=None):
     if not text:
         return results
 
-    normalized = normalize_text(text)
+    normalized = clean_html(text)
 
-    for match in DATE_PATTERN.finditer(normalized):
+    blocks = split_blocks(normalized)
 
-        year_text = match.group("year")
+    for block_index, block in enumerate(blocks):
 
-        month = int(match.group("month"))
-        day = int(match.group("day"))
+        for match in DATE_PATTERN.finditer(block):
 
-        # 完整日期使用明確年份
-        if year_text:
+            year_text = match.group("year")
 
-            year = int(year_text)
-            inferred = False
+            month = int(match.group("month"))
+            day = int(match.group("day"))
 
-        # 沒有年份時，不再任意抓取附近其他年份
-        else:
+            if year_text:
 
-            year = reference_year
-            inferred = True
+                year = int(year_text)
+                inferred = False
 
-        if year is None:
-            continue
+            else:
 
-        try:
+                year = reference_year
+                inferred = True
 
-            date_value = datetime(
-                year,
-                month,
-                day
-            ).date().isoformat()
+            if year is None:
+                continue
 
-        except ValueError:
-            continue
+            try:
 
-        # 只使用日期所在句子判斷用途
-        context = get_date_sentence(
-            normalized,
-            match.start(),
-            match.end()
-        )
+                date_value = datetime(
+                    year,
+                    month,
+                    day
+                ).date().isoformat()
 
-        role = identify_date_role(context)
+            except ValueError:
+                continue
 
-        # 相同日期及用途只保留一筆
-        key = (
-            date_value,
-            role
-        )
+            context = get_date_context(
+                blocks,
+                block_index
+            )
 
-        if key in seen:
-            continue
+            role = identify_date_role(
+                context
+            )
 
-        seen.add(key)
+            status = identify_date_status(
+                date_value
+            )
 
-        results.append({
-            "date": date_value,
-            "originalText": match.group(0),
-            "yearInferred": inferred,
-            "role": role,
-            "context": context,
-        })
+            key = (
+                date_value,
+                role
+            )
+
+            if key in seen:
+                continue
+
+            seen.add(key)
+
+            results.append({
+                "date": date_value,
+                "originalText": match.group(0),
+                "yearInferred": inferred,
+                "role": role,
+                "dateStatus": status,
+                "context": context,
+            })
 
     results.sort(
         key=lambda item: (
@@ -527,7 +631,6 @@ def suggest_category(title, content):
 
     normalized_title = normalize_text(title)
 
-    # 明確的周邊及特典公告
     explicit_merch_patterns = [
         r"オフィシャルグッズ",
         r"グッズ販売",
@@ -547,7 +650,6 @@ def suggest_category(title, content):
         ):
             return "周邊商品及特典", "標題判斷"
 
-    # 其他標題分類
     category = match_rules(
         normalized_title,
         TITLE_RULES
@@ -556,7 +658,6 @@ def suggest_category(title, content):
     if category != "未分類":
         return category, "標題判斷"
 
-    # 正文備用分類
     category = match_rules(
         content,
         CONTENT_RULES
@@ -622,7 +723,9 @@ def analyze_announcement(item, events):
         or "未命名公告"
     )
 
-    content = item.get("content") or ""
+    content = clean_html(
+        item.get("content") or ""
+    )
 
     url = normalize_url(
         item.get("url")
@@ -630,10 +733,11 @@ def analyze_announcement(item, events):
 
     reference_year = get_reference_year(item)
 
+    # 日期以正文為主，標題也一併檢查
     full_text = (
         str(title)
         + "\n"
-        + str(content)
+        + content
     )
 
     dates = extract_dates(
@@ -762,6 +866,8 @@ def main():
                 + date_item["date"]
                 + " | "
                 + date_item["role"]
+                + " | "
+                + date_item["dateStatus"]
                 + inferred_mark
             )
 
@@ -793,6 +899,22 @@ def main():
 
             date_role_statistics[role] = (
                 date_role_statistics.get(role, 0) + 1
+            )
+
+    # =================================
+    # 日期狀態統計
+    # =================================
+
+    date_status_statistics = {}
+
+    for item in candidates:
+
+        for date_item in item["dateCandidates"]:
+
+            status = date_item["dateStatus"]
+
+            date_status_statistics[status] = (
+                date_status_statistics.get(status, 0) + 1
             )
 
     # =================================
@@ -834,6 +956,8 @@ def main():
 
         "dateRoleStatistics": date_role_statistics,
 
+        "dateStatusStatistics": date_status_statistics,
+
         "dateYearStatistics": {
             "explicitYear": explicit_count,
             "inferredYear": inferred_count,
@@ -845,7 +969,8 @@ def main():
             "本檔案僅供活動候選資料分析及人工確認。"
             "完整日期使用公告明確標示的年份。"
             "未標示年份的日期使用公告參考年份推定。"
-            "日期用途以日期所在句子判斷。"
+            "日期用途依清理 HTML 後的所在句子判斷。"
+            "日期狀態區分已過期、今天及未來。"
             "相同日期及用途的紀錄只保留一筆。"
             "本程式不會修改 events.json。"
         ),
@@ -876,6 +1001,10 @@ def main():
 
     print(
         f"日期用途統計：{date_role_statistics}"
+    )
+
+    print(
+        f"日期狀態統計：{date_status_statistics}"
     )
 
     print(
